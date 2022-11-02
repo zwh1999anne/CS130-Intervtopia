@@ -5,6 +5,7 @@ from django.contrib.auth.models import AbstractUser
 from interview.models import *
 from evaluation.models import *
 
+
 class CustomUser(AbstractUser):
     #preference = models.JSONField()
     #availability = models.DateTimeField()
@@ -14,6 +15,7 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.username
+
 
 class Preference:
     languages = []
@@ -45,6 +47,7 @@ class Preference:
         '''
         TODO: set preferred question difficulty level. Allow selection from easy, medium, hard
         '''
+
 
 class History:
     interviews = []
@@ -78,6 +81,7 @@ class RandomMatching(MatchingStrategy):
         TODO: implement the random matching algorithm
         '''
 
+
 class PreferenceMatching(MatchingStrategy):
     strategy_name = "Preference Matching"
 
@@ -86,8 +90,10 @@ class PreferenceMatching(MatchingStrategy):
         TODO: implement the perference matching algorithm
         '''
 
+
 class Interviewer(CustomUser):
     evalform = InterviewerForm()
+
 
 class Interviewee(CustomUser):
     evalform = IntervieweeForm()

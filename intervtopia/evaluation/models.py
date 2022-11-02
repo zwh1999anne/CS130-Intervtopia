@@ -1,8 +1,8 @@
 from email.policy import default
 from django.db import models
 
-
 # Create your models here.
+
 
 class Question(models.Model):
     """
@@ -64,8 +64,7 @@ class InterviewER_EvaluationFormDB(models.Model):
         communication_sentence = request.POST['communication']
         coding_skill_sentence = request.POST['coding-skill']
 
-        self.objects.create(interviewee=interviewee_text, score=score_int, problem_solving=problem_solving_sentence,
-                            communication=communication_sentence, coding_skill=coding_skill_sentence)
+        self.objects.create(interviewee=interviewee_text, score=score_int, problem_solving=problem_solving_sentence, communication=communication_sentence, coding_skill=coding_skill_sentence)
 
     def query(self):
         raise NotImplementedError
@@ -92,8 +91,7 @@ class InterviewEE_EvaluationFormDB(models.Model):
         helpful_sentence = request.POST['helpful']
         communication_sentence = request.POST['communication']
 
-        self.objects.create(interviewer=interviewer_text, score=score_int,
-                            helpful=helpful_sentence, communication=communication_sentence)
+        self.objects.create(interviewer=interviewer_text, score=score_int, helpful=helpful_sentence, communication=communication_sentence)
 
     def query(self):
         raise NotImplementedError

@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                 'verbose_name_plural': 'users',
                 'abstract': False,
             },
-            bases=('users.customuser',),
+            bases=('users.customuser', ),
             managers=[
                 ('objects', django.contrib.auth.models.UserManager()),
             ],
@@ -37,7 +37,7 @@ class Migration(migrations.Migration):
                 'verbose_name_plural': 'users',
                 'abstract': False,
             },
-            bases=('users.customuser',),
+            bases=('users.customuser', ),
             managers=[
                 ('objects', django.contrib.auth.models.UserManager()),
             ],

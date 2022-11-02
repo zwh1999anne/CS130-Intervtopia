@@ -2,13 +2,14 @@ import unittest
 from external.meeting import meetingRoom
 from external.IDE import IDE
 
+
 class randomTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-         # TODO wait for user class done for information hiding (no longer pass inside uids)
-        cls.meeting_room = meetingRoom(123,456)
-        cls.ide = IDE(123,456)
+        # TODO wait for user class done for information hiding (no longer pass inside uids)
+        cls.meeting_room = meetingRoom(123, 456)
+        cls.ide = IDE(123, 456)
 
     @classmethod
     def tearDownClass(cls):
