@@ -4,6 +4,15 @@ Intervtopia: A Web Application for Mock Interviews between Peers
 ## Team members:
 Wenhe Zhang, Haofan Lu, Reza Rezvani, Keli Huang, Mehrab Beikzadeh, and Yadi Cao
 
+## Notes for Devs:
+### Requirements:
+- django
+- yapf (code formatter; formatting file provided in `repo_root/intervtopia/.style.yapf`)
+
+### Git Ignore:
+If you see pycache files in `git status`, make sure removing them before commit. This should not happen after a commit where `**/__pycache__/*` is included in the `.gitigore`; However, they may be re-commited if you merge or rebase some older commits.
+
+
 ## Automated Test
 We have 2 catogories of auto tests: 1) the django and 2) the general unit tests supported by python's unittest module.
 Please refer to this [Tutorial](https://docs.djangoproject.com/en/4.1/intro/tutorial05/) on how to use the django's auto test systems. There are some example test cases.
