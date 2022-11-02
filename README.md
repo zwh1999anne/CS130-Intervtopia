@@ -7,7 +7,7 @@ Wenhe Zhang, Haofan Lu, Reza Rezvani, Keli Huang, Mehrab Beikzadeh, and Yadi Cao
 ## Notes for Devs:
 ### Requirements:
 - django
-- yapf (code formatter; formatting file provided in `repo_root/intervtopia/.style.yapf`)
+- yapf (code formatter; formatting file provided in `repo_root/intervtopia/.style.yapf`). Auto-formatting must be done through `yapf -ir intervtopia` (in repo root) or `yapf -ir .` (in `intervtopia`) before commit.
 
 ### Git Ignore:
 If you see pycache files in `git status`, make sure removing them before commit. This should not happen after a commit where `**/__pycache__/*` is included in the `.gitigore`; However, they may be re-commited if you merge or rebase some older commits.
