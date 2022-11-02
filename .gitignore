@@ -113,3 +113,8 @@ Thumbs.db
 !.gitignore
 !.nvmrc
 !.phpcs.xml.dist
+
+# pycache and jupyter intermedia
+**/__pycache__/*
+*.pyc
+**/.ipynb_checkpoints/*
