@@ -4,9 +4,6 @@ Intervtopia: A Web Application for Mock Interviews between Peers
 ## Team members:
 Wenhe Zhang, Haofan Lu, Reza Rezvani, Keli Huang, Mehrab Beikzadeh, and Yadi Cao
 
-# Evaluation App
-evaluation is the application handling the evaluation forms
-
 ## Automated Test
 We have 2 catogories of auto tests: 1) the django and 2) the general unit tests supported by python's unittest module.
 Please refer to this [Tutorial](https://docs.djangoproject.com/en/4.1/intro/tutorial05/) on how to use the django's auto test systems. There are some example test cases.
@@ -16,7 +13,11 @@ To run the auto test use the following command in the `repo_root/intervtopia/` d
 python run_tests.py
 ```
 
-# Database
+## Evaluation App
+evaluation is the application handling the evaluation forms
+
+
+## Database
 
 SQLite database is used by django by default. It hosts two models for this application: `Question` and `Choice`.
 
@@ -26,3 +27,8 @@ python manage.py createsuperuser
 ```
 Please refer to this [Tutorial](https://docs.djangoproject.com/en/4.1/intro/tutorial02/) for basic usage about the database.
 Please dig into this [Documentation](https://docs.djangoproject.com/en/4.1/ref/databases/#sqlite-notes) for more information.
+
+
+## User system
+# TODO list
+[] Extend user from the AbstractUser class. see: [link](https://dontrepeatyourself.org/post/django-custom-user-model-extending-abstractuser/)
