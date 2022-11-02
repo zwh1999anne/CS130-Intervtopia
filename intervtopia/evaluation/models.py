@@ -24,3 +24,25 @@ class Choice(models.Model):
 
     def __str__(self) -> str:
         return self.choice_text
+
+class EvalForm:
+    rating = None
+    comments = ""
+
+    def getRating(self):
+        if self.rating is None:
+            raise "Warning: rating is not available"
+        else:
+            return self.rating
+
+    def setRating(self, r):
+        self.rating = r
+
+    def getComments(self):
+        return self.comments
+
+class InterviewerForm(EvalForm):
+    questions = Question.objects.filter(target__gte = 0)
+
+class IntervieweeForm(EvalForm):
+    questions = Question.objects.filter(target__lte = 0)
