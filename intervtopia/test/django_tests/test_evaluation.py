@@ -1,5 +1,5 @@
 from django.test import TestCase, Client
-from .models import Question
+from evaluation.models import Question
 from django.urls import reverse
 # Create your tests here.
 
@@ -27,6 +27,13 @@ class IndexViewTests(TestCase):
 
 
 class EvaluationFormTests(TestCase):
+
+    def test_interviewer_form_view(self):
+        response = self.client.get(reverse('evaluation:interviewer'))
+        self.assertEqual(response.status_code, 200)
+        self.assertQuerysetEqual(response.context['question_list'], Question.objects.filter(target__gte = 0))
+
+class EvaluationFormTests2(TestCase):
 
     def test_interviewer_form_view(self):
         response = self.client.get(reverse('evaluation:interviewer'))
