@@ -7,9 +7,14 @@
         </legend>
         {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
         {% for choice in question.choice_set.all %}
-        <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}">
+        <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.choice_value }}">
         <label for="choice{{ forloop.counter }}">{{ choice.choice_text }}</label><br>
         {% endfor %}
+
+        {% if not question.choice_set.all %}
+        <input type="text" id="sentence" name="{{ question.question_name }}" maxlength="200">
+        {% endif %}
+
     </fieldset>
     {% endfor %}
     <input type="submit" value="submit">

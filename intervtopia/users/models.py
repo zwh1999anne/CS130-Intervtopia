@@ -6,11 +6,11 @@ from interview.models import *
 from evaluation.models import *
 
 class CustomUser(AbstractUser):
-    preference = models.JSONField()
-    availability = models.DateTimeField()
-    history = models.JSONField()
-    rating = models.FloatField()
-    matchingStrategy = models.CharField(max_length = 200)
+    #preference = models.JSONField()
+    #availability = models.DateTimeField()
+    #history = models.JSONField()
+    #rating = models.FloatField()
+    #matchingStrategy = models.CharField(max_length = 200)
 
     def __str__(self):
         return self.username
