@@ -41,3 +41,11 @@ Please dig into this [Documentation](https://docs.djangoproject.com/en/4.1/ref/d
 ## User system
 # TODO list
 [] Extend user from the AbstractUser class. see: [link](https://dontrepeatyourself.org/post/django-custom-user-model-extending-abstractuser/)
+
+
+## External libraries and services
+
+### Instant web services
+We generate the meeting rooms/workspaces using existing online service providers for easier integration. The unique workspace id generation is done by hashcode of the particitants. These services are then wrapped into a bigger Facede for easier use by users.
+- Online IDE, supported by [jitsi meet](https://meet.jit.si/)
+- Online Video Conference room, supported by [Codeshare](https://codeshare.io/)
