@@ -1,5 +1,5 @@
 from django.test import TestCase, Client
-from evaluation.models import Question
+from evaluation.models import Question, EvalForm
 from django.urls import reverse
 # Create your tests here.
 
@@ -19,6 +19,7 @@ class QuestionModelTests(TestCase):
     def test_creating_a_question_for_interviewee(self):
         question = create_question("Test Question for interviewee", target=-1)
         self.assertEqual(question.target, -1)
+        self.assertFalse(question.target, 1)
 
 
 class IndexViewTests(TestCase):
@@ -30,11 +31,16 @@ class IndexViewTests(TestCase):
 
 
 class EvaluationFormTests(TestCase):
+    evalform = EvalForm()
 
     def test_interviewer_form_view(self):
         response = self.client.get(reverse('evaluation:interviewer'))
         self.assertEqual(response.status_code, 200)
         self.assertQuerysetEqual(response.context['question_list'], Question.objects.filter(target__gte=0))
+
+    def test_set_rating(self):
+        self.evalform.setRating(4.4)
+        self.assertEqual(4.4, self.evalform.getRating())
 
 
 class EvaluationFormTests2(TestCase):

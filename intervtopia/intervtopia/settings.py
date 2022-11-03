@@ -31,6 +31,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'users.apps.UsersConfig',
+    'interview.apps.InterviewConfig',
     'evaluation.apps.EvaluationConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -38,8 +40,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'users.apps.UsersConfig',
-    'interview.apps.InterviewConfig',
 ]
 
 AUTH_USER_MODEL = 'users.CustomUser'

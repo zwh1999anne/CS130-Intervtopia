@@ -1,5 +1,6 @@
 from email.policy import default
 from django.db import models
+from users.models import *
 
 # Create your models here.
 
@@ -8,15 +9,15 @@ class Question(models.Model):
     """
     question_text: ask question
     target: who will answer this question
-        value = 0: both interviewer and interviewee should answer
-        value = 1: the question is for interviewer only
-        value = -1: the question is for interviewee only
     question_ranking: use to rank question, the smaller number, the higher position
     question_name: use in the update method
     """
-
+    target_choices = [
+        ('ER', "Interviewer"),
+        ('EE', "Interviewee")
+    ]
     question_text = models.CharField(max_length=200)
-    target = models.IntegerField(default=0)
+    target = models.CharField(max_length = 2,   default=0, choices = target_choices)
     question_ranking = models.IntegerField(default=0)
     question_name = models.CharField(max_length=200)
 
@@ -97,21 +98,32 @@ class InterviewEE_EvaluationFormDB(models.Model):
         raise NotImplementedError
 
 
-class EvalForm:
-    rating = None
-    comments = ""
+class EvalForm(models.Model):
+    questions = models.ManyToManyField(Question)
+    rating = models.IntegerField(default = 0)
+    comments = models.TextField()
+    response = models.JSONField()
+    targer_user = models.ForeignKey(CustomUser, on_delete = models.CASCADE)
+    role_choices = [
+        ('ER', 'Interviewer'),
+        ('EE', 'Interviewee')
+    ]
+    target_role = models.CharField(max_length = 2, choices = role_choices)
 
-    def getRating(self):
-        if self.rating is None:
-            raise "Warning: rating is not available"
-        else:
-            return self.rating
+    def onSubmit(self):
+        '''
+        TODO: update the response and write to DB
+        '''
 
-    def setRating(self, r):
-        self.rating = r
+    def getReport(self):
+        '''
+        TODO: generate report from the response
+        '''
 
-    def getComments(self):
-        return self.comments
+    def getQuestions(self):
+        '''
+        TODO: return the questions
+        '''
 
     @staticmethod
     def update(request):
@@ -121,10 +133,4 @@ class EvalForm:
         else:
             InterviewEE_EvaluationFormDB.update(InterviewEE_EvaluationFormDB, request)
 
-
-class InterviewerForm(EvalForm):
-    questions = Question.objects.filter(target__gte=0)
-
-
-class IntervieweeForm(EvalForm):
-    questions = Question.objects.filter(target__lte=0)
+    

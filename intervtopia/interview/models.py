@@ -1,15 +1,28 @@
 from django.db import models
-# import sys, os
-# sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "..")
 from users.models import *
+from evaluation.models import *
 # Create your models here.
 
+class Interviewer(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete = models.CASCADE)
+    evalForm = models.ForeignKey(EvalForm, on_delete = models.CASCADE)
 
-class Interview:
-    id = models.UUIDField()
-    interviewer = models.JSONField()
-    interviewee = models.JSONField()
+    def __str__(self) -> str:
+        return self.user.username
+
+class Interviewee(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete = models.CASCADE)
+    evalForm = models.ForeignKey(EvalForm, on_delete = models.CASCADE)
+    
+    def __str__(self) -> str:
+        return self.user.username
+
+
+class Interview(models.Model):
+    viewER = models.ForeignKey(Interviewer, on_delete = models.CASCADE)
+    viewEE = models.ForeignKey(Interviewee, on_delete = models.CASCADE)
     problems = models.JSONField()
+    date_and_time = models.DateTimeField()
 
     def toJSON():
         '''

@@ -1,66 +1,130 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-# import sys, os
-# sys.path.append(os.path.dirname(os.path.abspath(__file__)) + "..")
-from interview.models import *
-from evaluation.models import *
+from datetime import datetime
+from django.utils.timezone import now
+# from interview.models import *
+
+class Language(models.Model):
+    lang_name = models.CharField(max_length = 10)
+
+    def __str__(self) -> str:
+        return self.lang_name
+
+class Company(models.Model):
+    company_name = models.CharField(max_length = 100)
+
+    def __str__(self) -> str:
+        return self.company_name
+
+class Position(models.Model):
+    position_name = models.CharField(max_length = 100)
+
+    def __str__(self) -> str:
+        return self.position_name
 
 
 class CustomUser(AbstractUser):
-    #preference = models.JSONField()
-    #availability = models.DateTimeField()
-    #history = models.JSONField()
-    #rating = models.FloatField()
-    #matchingStrategy = models.CharField(max_length = 200)
+    difficulty_choices = [
+        ('E', 'Easy'),
+        ('M', 'Medium'),
+        ('H', 'Hard'),
+        ('', 'Select a difficulty')
+    ]
+    target_companys = models.ManyToManyField(Company)
+    target_positions = models.ManyToManyField(Position)
+    preferred_languages = models.ManyToManyField(Language)
+    preferred_difficulty = models.CharField(max_length = 1, choices = difficulty_choices, default = '')
+    availability = models.DateTimeField("user availability", default=now)
+    history = models.JSONField(blank = True, null = True)
+    rating = models.FloatField(default = 0)
+    matching_choices = [
+        ('random', 'RandomMatching'),
+        ('preference', 'PreferenceMatching')
+    ]
+    matchingStrategy = models.CharField(max_length = 20, choices = matching_choices, default = 'random')
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.username
 
-
-class Preference:
-    languages = []
-    targetCompanys = []
-    targetPositions = []
-    preferredDifficulty = []
-
-    def toJSON(self):
+    def add_target_company(self, company: Company) -> bool:
         '''
-        TODO: convert preferences to JSON Format, adapter to the CustomUser's perference field
+        TODO: add a new company to the target company list
+            if the company is already in the database, simply add it to the user's target_companys 
+            if the company is not in the database, first add it to the database, then include it in the user's target_companys
+            return True if success, report error otherwise
         '''
 
-    def setLanguages(self, lang: str):
+    def remove_target_company(self, company: Company) -> bool:
         '''
-        TODO: set preferred programming languages, need to check repetition, better to use a selection from a predefined list
-        '''
-
-    def setTargetCompanys(self, comp: str):
-        '''
-        TODO: set target companys, need to check repetition
+        TODO: remove the specified company from the user's target company list, but keep it in the database
+            return True if success, report error otherwise
         '''
 
-    def setTargetPositions(self, pos: str):
+    def add_target_position(self, position: Position) -> bool:
         '''
-        TODO: set target positions, need to check repetition
-        '''
-
-    def setDifficulty(self, diff: str):
-        '''
-        TODO: set preferred question difficulty level. Allow selection from easy, medium, hard
+        TODO: add a new position to the target position list
+            if the position is already in the database, simply add it to the user's target_positions 
+            if the position is not in the database, first add it to the database, then include it in the user's target_positions
+            return True if success, report error otherwise
         '''
 
-
-class History:
-    interviews = []
-
-    def toJSON(self):
+    def remove_target_position(self, position: Position) -> bool:
         '''
-        TODO: convert the history interviews to JSON format
+        TODO: remove the specified company from the user's target company list, but keep it in the database
+            return True if success, report error otherwise
         '''
 
-    def addInterview(self, interview: Interview):
-        self.interviews.append(interview)
+    def add_preferred_language(self, lang: Language) -> bool:
+        '''
+        TODO: add a new Language to the target position list
+            return True if success, report error otherwise
+        '''
 
+    def remove_preferred_language(self, lang: Language) -> bool:
+        '''
+        TODO: add a new Language to the target position list
+            return True if success, report error otherwise
+        '''
 
+    def set_preferred_difficulty(self, diff: str) -> bool:
+        '''
+        TODO: set the user's preferred difficulty
+            return True if success, report error otherwise
+        '''
+    
+    def update_history(self, new_interivew: str) -> bool:
+        '''
+        TODO: add the new interview information to the history list
+            return True if success, report error otherwise
+        '''
+    
+    def get_historic_meetings(self) -> dict:
+        '''
+        TODO: return the history of interview in the JSON format
+        '''
+
+    def set_availability(self, avail: datetime) -> bool:
+        '''
+        TODO: set user's availability
+            return True if success, report error otherwise
+        '''
+
+    def set_rating(self, rating: float) -> bool:
+        '''
+        TODO: set user's rating
+            return True if success, report error otherwise
+        '''
+
+    def set_matching_strategy(self, strategy: str) -> bool:
+        '''
+        TODO: set user's matching strategy
+            return True if success, report error otherwise
+        '''
+
+'''
+The Matching Strategy interface
+Strategy Pattern
+'''
 class MatchingStrategy:
     strategy_name = ""
 
@@ -71,7 +135,6 @@ class MatchingStrategy:
         '''
         TODO: to be implemented by subclasses
         '''
-
 
 class RandomMatching(MatchingStrategy):
     strategy_name = "Random Matching"
@@ -89,11 +152,3 @@ class PreferenceMatching(MatchingStrategy):
         '''
         TODO: implement the perference matching algorithm
         '''
-
-
-class Interviewer(CustomUser):
-    evalform = InterviewerForm()
-
-
-class Interviewee(CustomUser):
-    evalform = IntervieweeForm()
