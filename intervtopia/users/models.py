@@ -22,6 +22,11 @@ class Position(models.Model):
     def __str__(self) -> str:
         return self.position_name
 
+class Calender(models.Model):
+    ext_url = models.URLField()
+
+    def __str__(self) -> str:
+        return self.ext_url
 
 class CustomUser(AbstractUser):
     difficulty_choices = [
@@ -34,7 +39,7 @@ class CustomUser(AbstractUser):
     target_positions = models.ManyToManyField(Position)
     preferred_languages = models.ManyToManyField(Language)
     preferred_difficulty = models.CharField(max_length = 1, choices = difficulty_choices, default = '')
-    availability = models.DateTimeField("user availability", default=now)
+    availability = models.OneToOneField(Calender, on_delete = models.CASCADE, null = True)
     history = models.JSONField(blank = True, null = True)
     rating = models.FloatField(default = 0)
     matching_choices = [
