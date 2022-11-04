@@ -22,6 +22,7 @@ class QuestionModelTests(TestCase):
         self.assertFalse(question.target, 1)
 
 
+
 class IndexViewTests(TestCase):
 
     def test_default_index_view(self):
@@ -49,3 +50,5 @@ class EvaluationFormTests2(TestCase):
         response = self.client.get(reverse('evaluation:interviewer'))
         self.assertEqual(response.status_code, 200)
         self.assertQuerysetEqual(response.context['question_list'], Question.objects.filter(target__gte=0))
+        self.assertQuerysetEqual(response.context['question_list'],
+                                 Question.objects.filter(target__gte=0))

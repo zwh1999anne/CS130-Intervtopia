@@ -4,6 +4,7 @@ from users.models import *
 
 # Create your models here.
 
+
 class Question(models.Model):
     """
     question_text: ask question
