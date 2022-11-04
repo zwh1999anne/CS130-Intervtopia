@@ -3,7 +3,6 @@ from evaluation.models import Question, EvalForm
 from django.urls import reverse
 # Create your tests here.
 
-
 def create_question(question_text, target):
     '''
     target: who will answer this question
