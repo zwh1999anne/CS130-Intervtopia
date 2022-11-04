@@ -39,8 +39,6 @@ Please dig into this [Documentation](https://docs.djangoproject.com/en/4.1/ref/d
 
 
 ## User system
-# TODO list
-[] Extend user from the AbstractUser class. see: [link](https://dontrepeatyourself.org/post/django-custom-user-model-extending-abstractuser/)
 
 
 ## External libraries and services
@@ -49,3 +47,15 @@ Please dig into this [Documentation](https://docs.djangoproject.com/en/4.1/ref/d
 We generate the meeting rooms/workspaces using existing online service providers for easier integration. The unique workspace id generation is done by hashcode of the particitants. These services are then wrapped into a bigger Facede for easier use by users.
 - Online IDE, supported by [jitsi meet](https://meet.jit.si/)
 - Online Video Conference room, supported by [Codeshare](https://codeshare.io/)
+
+# Installation
+   ```
+   pip3 install -r requirements.txt
+   python3 manage.py makemigrations
+   python3 manage.py migrate
+   python3 manage.py test # Run the test
+   python3 manage.py createsuperuser # Create a superuser
+   python3 manage.py runserver
+   ```
+
+   To see the admin site: [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/)
