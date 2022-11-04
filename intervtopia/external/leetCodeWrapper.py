@@ -62,7 +62,7 @@ class leetCodeQuestionQuery():
         for q in q_status_list:
             if q["paid_only"] == False:
                 self._free_q_metas.append(q)
-    
+
     def length(self):
         return len(self._free_q_metas)
 
@@ -79,7 +79,7 @@ class leetCodeQuestionQuery():
             html_str = html_bytes.decode("utf8")
         # parse html and grab only the question content
         q_content_html = html_str  # TODO
-        
+
         # wrap question class
         question_wrapper = interviewQuestion()
         question_wrapper.setTitle(q_title)
