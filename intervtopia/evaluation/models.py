@@ -12,12 +12,9 @@ class Question(models.Model):
     question_ranking: use to rank question, the smaller number, the higher position
     question_name: use in the update method
     """
-    target_choices = [
-        ('ER', "Interviewer"),
-        ('EE', "Interviewee")
-    ]
+    target_choices = [('ER', "Interviewer"), ('EE', "Interviewee")]
     question_text = models.CharField(max_length=200)
-    target = models.CharField(max_length = 2, default = 'ER', choices = target_choices)
+    target = models.CharField(max_length=2, default='ER', choices=target_choices)
     question_ranking = models.IntegerField(default=0)
     question_name = models.CharField(max_length=200)
 
@@ -70,7 +67,6 @@ class Choice(models.Model):
 #     def query(self):
 #         raise NotImplementedError
 
-
 # class InterviewEE_EvaluationFormDB(models.Model):
 #     interviewer = models.CharField(max_length=200, default="")
 #     score = models.IntegerField(default=0)
@@ -97,12 +93,13 @@ class Choice(models.Model):
 #     def query(self):
 #         raise NotImplementedError
 
+
 class Response(models.Model):
-    name = models.CharField(max_length = 100, default = "")
-    problem_solving = models.IntegerField(default = 0)
-    communication = models.IntegerField(default = 0)
-    coding_skill = models.IntegerField(default = 0)
-    helpful = models.IntegerField(default = 0)
+    name = models.CharField(max_length=100, default="")
+    problem_solving = models.IntegerField(default=0)
+    communication = models.IntegerField(default=0)
+    coding_skill = models.IntegerField(default=0)
+    helpful = models.IntegerField(default=0)
 
     def __str__(self) -> str:
         return self.name
@@ -111,21 +108,17 @@ class Response(models.Model):
         '''
         TODO: update the response
         '''
-    
 
 
 class EvalForm(models.Model):
-    name = models.CharField(max_length = 100, default = "")
+    name = models.CharField(max_length=100, default="")
     questions = models.ManyToManyField(Question)
-    rating = models.IntegerField(default = 0)
-    comments = models.TextField(null = True, blank = True)
-    response = models.ForeignKey(Response, on_delete = models.CASCADE, default = None)
-    targer_user = models.ForeignKey(CustomUser, on_delete = models.CASCADE)
-    role_choices = [
-        ('ER', 'Interviewer'),
-        ('EE', 'Interviewee')
-    ]
-    target_role = models.CharField(max_length = 2, choices = role_choices)
+    rating = models.IntegerField(default=0)
+    comments = models.TextField(null=True, blank=True)
+    response = models.ForeignKey(Response, on_delete=models.CASCADE, default=None)
+    targer_user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    role_choices = [('ER', 'Interviewer'), ('EE', 'Interviewee')]
+    target_role = models.CharField(max_length=2, choices=role_choices)
 
     def __str__(self) -> str:
         return self.name
@@ -155,5 +148,3 @@ class EvalForm(models.Model):
         #     InterviewER_EvaluationFormDB.update(InterviewER_EvaluationFormDB, request)
         # else:
         #     InterviewEE_EvaluationFormDB.update(InterviewEE_EvaluationFormDB, request)
-
-    
