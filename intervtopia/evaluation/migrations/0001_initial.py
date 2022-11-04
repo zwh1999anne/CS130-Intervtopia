@@ -8,24 +8,33 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
             name='Question',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id',
+                 models.BigAutoField(auto_created=True,
+                                     primary_key=True,
+                                     serialize=False,
+                                     verbose_name='ID')),
                 ('question_text', models.CharField(max_length=200)),
             ],
         ),
         migrations.CreateModel(
             name='Choice',
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('id',
+                 models.BigAutoField(auto_created=True,
+                                     primary_key=True,
+                                     serialize=False,
+                                     verbose_name='ID')),
                 ('choice_text', models.CharField(max_length=200)),
                 ('selected', models.BooleanField()),
-                ('question', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='evaluation.question')),
+                ('question',
+                 models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                                   to='evaluation.question')),
             ],
         ),
     ]

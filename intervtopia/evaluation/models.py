@@ -3,6 +3,7 @@ from django.db import models
 
 # Create your models here.
 
+
 class Question(models.Model):
     question_text = models.CharField(max_length=200)
     '''
@@ -11,7 +12,7 @@ class Question(models.Model):
         value = 1: the question is for interviewer only
         value = -1: the question is for interviewee only
     '''
-    target = models.IntegerField(default=0) 
+    target = models.IntegerField(default=0)
 
     def __str__(self) -> str:
         return self.question_text
