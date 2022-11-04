@@ -4,11 +4,13 @@ from datetime import datetime
 from django.utils.timezone import now
 # from interview.models import *
 
+
 class Language(models.Model):
-    lang_name = models.CharField(max_length = 10)
+    lang_name = models.CharField(max_length=10)
 
     def __str__(self) -> str:
         return self.lang_name
+
 
     @staticmethod
     def add(lang: str):
@@ -28,10 +30,11 @@ class Language(models.Model):
 
 
 class Company(models.Model):
-    company_name = models.CharField(max_length = 100)
+    company_name = models.CharField(max_length=100)
 
     def __str__(self) -> str:
         return self.company_name
+
 
     @staticmethod
     def add(company: str):
@@ -56,11 +59,13 @@ class Company(models.Model):
     def get(company: str):
         return Company.objects.filter(company_name = company)
 
+
 class Position(models.Model):
-    position_name = models.CharField(max_length = 100)
+    position_name = models.CharField(max_length=100)
 
     def __str__(self) -> str:
         return self.position_name
+
 
     @staticmethod
     def add(position: str):
@@ -83,6 +88,7 @@ class Position(models.Model):
     @staticmethod
     def get(position: str):
         return Position.objects.filter(position_name = position)
+
 
 class Calender(models.Model):
     ext_url = models.URLField()
@@ -114,12 +120,7 @@ class Calender(models.Model):
     
 
 class CustomUser(AbstractUser):
-    difficulty_choices = [
-        ('E', 'Easy'),
-        ('M', 'Medium'),
-        ('H', 'Hard'),
-        ('', 'Select a difficulty')
-    ]
+    difficulty_choices = [('E', 'Easy'), ('M', 'Medium'), ('H', 'Hard'), ('', 'Select a difficulty')]
     target_companys = models.ManyToManyField(Company)
     target_positions = models.ManyToManyField(Position)
     preferred_languages = models.ManyToManyField(Language)
@@ -132,6 +133,7 @@ class CustomUser(AbstractUser):
         ('preference', 'PreferenceMatching')
     ]
     matchingStrategy = models.CharField(max_length = 20, choices = matching_choices, default = 'random')
+
 
     def __str__(self) -> str:
         return self.username
@@ -209,6 +211,7 @@ class CustomUser(AbstractUser):
         TODO: set the user's preferred difficulty
             return True if success, report error otherwise
         '''
+
         print("Set user's preferred difficulty as {}".format(diff))
         return True
     
@@ -222,7 +225,8 @@ class CustomUser(AbstractUser):
         '''
         print("Adding meeting {} to user's history".format(new_interivew))
         return True
-    
+
+
     def get_historic_meetings(self) -> dict:
         '''
         TODO: return the history of interview in the JSON format
@@ -255,10 +259,13 @@ class CustomUser(AbstractUser):
         return True
 
 
+
 '''
-The Matching Strategy interface
-Strategy Pattern
+    The Matching Strategy interface
+    Strategy Pattern
 '''
+
+
 class MatchingStrategy:
     strategy_name = ""
 
@@ -270,6 +277,7 @@ class MatchingStrategy:
         TODO: to be implemented by subclasses
             return the another user object
         '''
+
 
 class RandomMatching(MatchingStrategy):
     strategy_name = "Random Matching"

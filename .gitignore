@@ -118,3 +118,8 @@ Thumbs.db
 **/__pycache__/*
 *.pyc
 **/.ipynb_checkpoints/*
+
+# frontend package
+**/package-lock.json
+**/node_modules/*
+**/.eslintcache
