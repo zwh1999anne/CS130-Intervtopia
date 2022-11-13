@@ -34,9 +34,7 @@ Besides, there is an important file: `routes.js`, which defines the routing syst
 
 ## Current Progress
 
-We have finished the implementation of sidebar, routing system, navigation bar, and dashboard page. We are currently working on the preferences page and friends page. We will start working on the evaluations page and messages page soon. 
-
-For the part C, we will finish all the event handling parts of our frontend, as well as enable all the necessary data exchanges between frontend and backend.
+We have finished the implementation of sidebar, routing system, navigation bar, and all the functional pages(including dashboard page, preferences page, friends page, messages page, and evaluations page). We are currently working on the event handling and frontend-backend communication. 
 
 ## References
 
