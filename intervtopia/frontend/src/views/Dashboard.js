@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState }  from "react";
 import ChartistGraph from "react-chartist";
 // react-bootstrap components
 import {
@@ -12,6 +12,7 @@ import {
   Row,
   Col,
   Form,
+  Modal,
   OverlayTrigger,
   Tooltip,
 } from "react-bootstrap";
@@ -19,7 +20,48 @@ import {
 import toDos from "backend_data/to_do_list";
 import interviews_list from "backend_data/interviews_list";
 
+function AddFriendModal(props) {
+  return (
+    <Modal
+      {...props}
+      size="lg"
+    >
+      <Modal.Header closeButton>
+        <Modal.Title id="contained-modal-title-vcenter">
+          Sending Friend Invitation to {props.name}
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <p>
+          You could add a message to {props.name} here.
+        </p>
+        <Form.Group className="mb-3">
+        <Form.Control
+          defaultValue="Let's practice together, as friends!"
+          placeholder="Enter your message here."
+          as="textarea" rows={3}></Form.Control>
+        </Form.Group>
+      </Modal.Body>
+      <Modal.Footer>
+      <Button variant="primary" className="btn-fill" onClick={props.onHide}>
+            Send
+          </Button>
+        <Button variant="secondary" className="btn-fill" onClick={props.onHide}>Cancel</Button>
+      </Modal.Footer>
+    </Modal>
+  );
+}
+
 function Dashboard() {
+  const [todolist, settodoList] = useState(toDos);
+
+  const deleteTodo = (id) => {
+    return settodoList([...todolist.filter((element) => element.id !== id)]);
+  };
+
+  const [addFriendModalShow, setaddFriendModalShow] = React.useState(false);
+  const [FriendModalName, setFriendModalName] = React.useState(" ");
+
   return (
     <>
       <Container fluid>
@@ -34,9 +76,9 @@ function Dashboard() {
                   <Table>
                     <tbody>
                     {
-                      toDos.map((element, index) => {
+                      todolist.map((element) => {
                           if(element.type === "interview"){
-                            return <tr key={index}>
+                            return <tr key={element.id}>
                             <td>
                               <Form.Check className="mb-1 pl-0">
                                 <Form.Check.Label>
@@ -54,7 +96,7 @@ function Dashboard() {
                               </div>
                               <div className="text-left">
                               <Button variant="primary" className="btn-fill mr-5" size="sm">
-                          Cancel
+                          Join Meeting
                           </Button>{' '}
                           <Button variant="primary" className="mr-5" size="sm">Reschedule</Button>{' '}
                           <Button variant="outline-secondary" size="sm">View Profile</Button>
@@ -70,6 +112,7 @@ function Dashboard() {
                                   className="btn-simple btn-link p-1"
                                   type="button"
                                   variant="danger"
+                                  onClick={() => deleteTodo(element.id)}
                                 >
                                   <i className="fas fa-times"></i>
                                 </Button>
@@ -78,7 +121,7 @@ function Dashboard() {
                           </tr>;
                           }
                           else{
-                            return <tr key={index}>
+                            return <tr key={element.id}>
                             <td>
                               <Form.Check className="mb-1 pl-0">
                                 <Form.Check.Label>
@@ -96,7 +139,8 @@ function Dashboard() {
                               <Button variant="primary" className="btn-fill mr-5" size="sm">
                           Evaluate
                           </Button>{' '}
-                          <Button variant="primary" className="mr-5" size="sm">Add Friend</Button>{' '}
+                          <Button variant="primary" className="mr-5" size="sm" onClick={() => {setaddFriendModalShow(true); setFriendModalName(element.name)}}>Add Friend</Button>{' '}
+                          <AddFriendModal name = {FriendModalName} show={addFriendModalShow} onHide={() => setaddFriendModalShow(false)}></AddFriendModal>
                           <Button variant="outline-secondary" size="sm">View Profile</Button>
                               </div>
                             </td>
@@ -110,6 +154,7 @@ function Dashboard() {
                                   className="btn-simple btn-link p-1"
                                   type="button"
                                   variant="danger"
+                                  onClick={() => deleteTodo(element.id)}
                                 >
                                   <i className="fas fa-times"></i>
                                 </Button>
@@ -160,8 +205,8 @@ function Dashboard() {
                   </thead>
                   <tbody>
                   {
-                    interviews_list.map((element, index) => {
-                      return <tr key={index}>
+                    interviews_list.map((element) => {
+                      return <tr key={element.id}>
                          <td>{element.name}</td>
                         <td>{element.time}</td>
                         <td>
@@ -169,7 +214,8 @@ function Dashboard() {
                         <Button variant="primary" className="btn-fill mr-3" size="sm">
                         Interview Again
                         </Button>{'     '}
-                        <Button variant="primary" size="sm">Add Friend</Button>
+                        <Button variant="primary" size="sm"  onClick={() => {setaddFriendModalShow(true); setFriendModalName(element.name)}}>Add Friend</Button>
+                        <AddFriendModal name = {FriendModalName} show={addFriendModalShow} onHide={() => setaddFriendModalShow(false)}></AddFriendModal>
                         </div>
                         </td>
                         </tr>;
