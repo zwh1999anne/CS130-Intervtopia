@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 // react-bootstrap components
 import {
@@ -19,6 +19,12 @@ import {
 import messages_list from "backend_data/messages_list";
 
 function Messages() {
+  const [messagelist, setmessageList] = useState(messages_list);
+
+  const deleteMessage = (id) => {
+  
+  };
+
   return (
     <>
       <Container fluid>
@@ -34,9 +40,9 @@ function Messages() {
                   <Table>
                     <tbody>
                       {
-                        messages_list.map((element, index) => {
+                        messagelist.map((element) => {
                           if(element.type == "interview"){
-                            return <tr key={index}>
+                            return <tr key={element.id}>
                           <td className="text-left">
                               <div>
                               {element.name} invited you to have an interview on {element.time}!
@@ -49,7 +55,7 @@ function Messages() {
                             <Button variant="primary" className="btn-fill mr-5" size="sm">
                           Accept
                           </Button>{' '}
-                          <Button variant="primary" className="mr-5" size="sm">Ignore</Button>
+                          <Button variant="primary" className="mr-5" size="sm" onClick={() => deleteMessage(element.id)}>Ignore</Button>
                             </td>
                         </tr>;
                           }
@@ -80,9 +86,9 @@ function Messages() {
                   </thead>
                   <tbody>
                    {
-                    messages_list.map((element, index) => {
+                    messagelist.map((element) => {
                       if(element.type == "message"){
-                        return <tr key={index}>
+                        return <tr key={element.id}>
                         <td className="text-secondary">"{element.message}"</td>
                         <td>{element.name}</td>
                         <td>{element.time}</td>
@@ -91,7 +97,7 @@ function Messages() {
                         <Button variant="primary" className="btn-fill mr-3" size="sm">
                         Read and Reply
                         </Button>{'     '}
-                        <Button variant="primary" size="sm">Delete</Button>
+                        <Button variant="primary" size="sm" onClick={() => deleteMessage(element.id)}>Delete</Button>
                         </div>
                         </td>
                         </tr>;
