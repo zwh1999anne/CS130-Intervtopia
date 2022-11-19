@@ -123,3 +123,5 @@ Thumbs.db
 **/package-lock.json
 **/node_modules/*
 **/.eslintcache
+# package of npm
+**/package-lock.json

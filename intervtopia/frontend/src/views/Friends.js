@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 // react-bootstrap components
 import {
@@ -11,12 +11,47 @@ import {
   Container,
   Row,
   Col,
+  Form,
+  Modal,
+  OverlayTrigger,
+  Tooltip,
 } from "react-bootstrap";
 
 import invitations from "backend_data/inivitation_list";
 import friends from "backend_data/friends_list";
 
+function SendMessageModal(props) {
+  return (
+    <Modal
+      {...props}
+      size="lg"
+    >
+    <Modal.Header closeButton>
+        <Modal.Title id="contained-modal-title-vcenter">
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+      </Modal.Body>
+      <Modal.Footer>
+      <Button variant="primary" className="btn-fill" onClick={props.onHide}>
+            Send
+          </Button>
+        <Button variant="secondary" className="btn-fill" onClick={props.onHide}>Cancel</Button>
+      </Modal.Footer>
+    </Modal>
+  );
+}
+
 function Friends() {
+  const [invitationlist, setinvitationList] = useState(invitations);
+
+  const deleteInvitation = (id) => {
+    
+  };
+
+  const [sendMessageModalShow, setsendMessageModalShow] = React.useState(false);
+  const [MessageModalName, setMessageModalName] = React.useState(" ");
+
   return (
     <>
       <Container fluid>
@@ -31,8 +66,8 @@ function Friends() {
                   <Table>
                     <tbody>
                     {
-                      invitations.map((element, index) => {
-                        return <tr key={index}>
+                      invitationlist.map((element) => {
+                        return <tr key={element.id}>
                           <td className="text-left">
                               <div>
                               {element.name} has sent you a friend invitation on {element.time}!
@@ -45,7 +80,7 @@ function Friends() {
                             <Button variant="primary" className="btn-fill mr-5" size="sm">
                           Accept
                           </Button>{' '}
-                          <Button variant="primary" className="mr-5" size="sm">Ignore</Button>
+                          <Button variant="primary" className="mr-5" size="sm" onClick={() => deleteInvitation(element.id)}>Ignore</Button>
                             </td>
                         </tr>;
                       })
@@ -74,16 +109,20 @@ function Friends() {
                   </thead>
                   <tbody>
                   {
-                    friends.map((element, index) => {
-                      return <tr key={index}>
+                    friends.map((element) => {
+                      return <tr key={element.id}>
                          <td>{element.name}</td>
                         <td className="text-secondary">"{element.message}"</td>
                         <td>
                         <div className="text-left">
-                        <Button variant="primary" className="btn-fill mr-3" size="sm">
+                        <Button variant="primary" className="btn-fill mr-3" size="sm" onClick={() => {setsendMessageModalShow(true); setMessageModalName(element.name)}}>
                         Send a Message
                         </Button>{'     '}
+                
                         <Button variant="primary" size="sm">Launch an Interview</Button>
+
+                        <SendMessageModal name = {MessageModalName} show={sendMessageModalShow} onHide={() => setsendMessageModalShow(false)}></SendMessageModal>
+                        
                         </div>
                         </td>
                         </tr>;
