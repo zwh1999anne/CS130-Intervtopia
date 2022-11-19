@@ -90,33 +90,33 @@ class Position(models.Model):
         return Position.objects.filter(position_name = position)
 
 
-class Calender(models.Model):
+class Calendar(models.Model):
     ext_url = models.URLField()
 
     def __str__(self) -> str:
         return self.ext_url
 
     @staticmethod
-    def add(calender_url: str):
-        if len(Calender.objects.filter(ext_url = calender_url)) == 0:
-            cal = Calender.objects.create(ext_url = calender_url)
+    def add(calendar_url: str):
+        if len(Calendar.objects.filter(ext_url = calendar_url)) == 0:
+            cal = Calendar.objects.create(ext_url = calendar_url)
             return cal
 
     @staticmethod
-    def remove(calender_url: str):
-        filter_results = Calender.objects.filter(ext_url = calender_url)
+    def remove(calendar_url: str):
+        filter_results = Calendar.objects.filter(ext_url = calendar_url)
         if len(filter_results) != 0:
             filter_results.delete()
 
     @staticmethod
-    def update(old_calender_url: str, new_calender_url: str):
-        filter_results = Calender.objects.filter(ext_url = old_calender_url)
+    def update(old_calendar_url: str, new_calendar_url: str):
+        filter_results = Calendar.objects.filter(ext_url = old_calendar_url)
         if len(filter_results) != 0:
-            filter_results[0].update(ext_url = new_calender_url)
+            filter_results[0].update(ext_url = new_calendar_url)
 
     @staticmethod
-    def get(calender_url: str):
-        return Calender.objects.filter(ext_url = calender_url)
+    def get(calendar_url: str):
+        return Calendar.objects.filter(ext_url = calendar_url)
     
 
 class CustomUser(AbstractUser):
@@ -125,7 +125,7 @@ class CustomUser(AbstractUser):
     target_positions = models.ManyToManyField(Position)
     preferred_languages = models.ManyToManyField(Language)
     preferred_difficulty = models.CharField(max_length = 1, choices = difficulty_choices, default = '')
-    calender = models.OneToOneField(Calender, on_delete = models.CASCADE, null = True)
+    calendar = models.OneToOneField(Calendar, on_delete = models.CASCADE, null = True)
     history = models.JSONField(blank = True, null = True)
     rating = models.FloatField(default = 0)
     matching_choices = [
@@ -142,12 +142,6 @@ class CustomUser(AbstractUser):
     def create_user_base(username:str, password: str, email: str):
         '''
         TODO: Create a base user object and store it in the database, return the object
-        '''
-
-    @staticmethod
-    def get_user_by_username(username: str):
-        '''
-        TODO: Get a user object by the username
         '''
 
     def add_target_company(self, company: str) -> int:
@@ -234,12 +228,12 @@ class CustomUser(AbstractUser):
         print("This should report user's historic meetings")
         return True
 
-    def set_calender(self, calender: str) -> int:
+    def set_calendar(self, calendar: str) -> int:
         '''
         TODO: set user's availability
             return True if success, report error otherwise
         '''
-        print("Setting user's calender to {}".format(calender))
+        print("Setting user's calendar to {}".format(calendar))
         return True
 
     def set_rating(self, rating: float) -> int:
@@ -282,7 +276,6 @@ class MatchingStrategy:
 class RandomMatching(MatchingStrategy):
     strategy_name = "Random Matching"
 
-    @staticmethod
     def getPair(self, user: CustomUser):
         '''
         TODO: implement the random matching algorithm
@@ -292,7 +285,6 @@ class RandomMatching(MatchingStrategy):
 class PreferenceMatching(MatchingStrategy):
     strategy_name = "Preference Matching"
 
-    @staticmethod
     def getPair(self, user: CustomUser):
         '''
         TODO: implement the perference matching algorithm

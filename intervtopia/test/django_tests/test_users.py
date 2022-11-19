@@ -1,5 +1,5 @@
 from django.test import TestCase
-from users.models import Language, Company, Position, Calender, CustomUser, RandomMatching, PreferenceMatching
+from users.models import Language, Company, Position, Calendar, CustomUser, RandomMatching, PreferenceMatching
 # Create your tests here.
 
 class TestLanguage(TestCase):
@@ -28,6 +28,8 @@ class TestLanguage(TestCase):
         Language.add('TestLang')
         self.assertEqual(Language.get('TestLang').lang_name, 'TestLang')
         self.assertRaisesMessage(ValueError, "input cannot be empty", Language.get(''))
+        Language.remove('TestLang')
+        self.assertRaisesMessage(ValueError, 'TestLang is not in the database', Language.get('TestLang'))
 
 class TestCompany(TestCase):
     testCompany = 'TestCompany'
@@ -106,37 +108,37 @@ class TestPosition(TestCase):
         self.assertRaisesMessage(ValueError, "input cannot be empty", Position.update('', ''))
         self.assertRaisesMessage(ValueError, "RandomTestPosition is not in the database", Position.update('RandomTestPosition', self.testPosition))
         
-class TestCalender(TestCase):
-    testCalenderURL = 'https://calendar.google.com/calendar/u/0/r'
+class TestCalendar(TestCase):
+    testCalendarURL = 'https://calendar.google.com/calendar/u/0/r'
 
     def test_add(self):
         # Test insertion: valid input
-        self.assertEqual(Calender.add(self.testCalenderURL), Calender.objects.get(ext_url = self.testCalenderURL))
+        self.assertEqual(Calendar.add(self.testCalendarURL), Calendar.objects.get(ext_url = self.testCalendarURL))
         # Test insertion: invalid input
-        self.assertRaisesMessage(ValueError, "input cannot be empty", Calender.add(''))
+        self.assertRaisesMessage(ValueError, "input cannot be empty", Calendar.add(''))
         
     def test_remove(self):
-        Calender.add(self.testCalenderURL)
-        Calender.remove(self.testCalenderURL)
-        self.assertEqual(len(Calender.objects.filter(ext_url = self.testCalenderURL)), 0)
+        Calendar.add(self.testCalendarURL)
+        Calendar.remove(self.testCalendarURL)
+        self.assertEqual(len(Calendar.objects.filter(ext_url = self.testCalendarURL)), 0)
         # If the input is empty raise an error
-        self.assertRaisesMessage(ValueError, "input cannot be empty", Calender.remove(''))
+        self.assertRaisesMessage(ValueError, "input cannot be empty", Calendar.remove(''))
         # If the input is not in the database, raise an error
         self.assertRaisesMessage(ValueError, 'TestLang is not in the database')
 
     def test_get(self):
-        Calender.add(self.testCalenderURL)
-        self.assertEqual(Calender.get(self.testCalenderURL).ext_url, self.testCalenderURL)
-        self.assertRaisesMessage(ValueError, "input cannot be empty", Calender.get(''))
-        Calender.remove(self.testCalenderURL)
+        Calendar.add(self.testCalendarURL)
+        self.assertEqual(Calendar.get(self.testCalendarURL).ext_url, self.testCalendarURL)
+        self.assertRaisesMessage(ValueError, "input cannot be empty", Calendar.get(''))
+        Calendar.remove(self.testCalendarURL)
 
     def test_update(self):
-        Calender.add(self.testCalenderURL)
-        self.assertEqual(Position.update(self.testCalenderURL, 'NewTestURL').ext_url, 'NewTestURL')
-        self.assertRaisesMessage(ValueError, "input cannot be empty", Calender.update(self.testCalenderURL, ''))
-        self.assertRaisesMessage(ValueError, "input cannot be empty", Calender.update('', self.testCalenderURL))
-        self.assertRaisesMessage(ValueError, "input cannot be empty", Calender.update('', ''))
-        self.assertRaisesMessage(ValueError, "RondamTestURL is not in the database", Calender.update('RandomTestPosition', self.testCalenderURL))
+        Calendar.add(self.testCalendarURL)
+        self.assertEqual(Position.update(self.testCalendarURL, 'NewTestURL').ext_url, 'NewTestURL')
+        self.assertRaisesMessage(ValueError, "input cannot be empty", Calendar.update(self.testCalendarURL, ''))
+        self.assertRaisesMessage(ValueError, "input cannot be empty", Calendar.update('', self.testCalendarURL))
+        self.assertRaisesMessage(ValueError, "input cannot be empty", Calendar.update('', ''))
+        self.assertRaisesMessage(ValueError, "RondamTestURL is not in the database", Calendar.update('RandomTestPosition', self.testCalendarURL))
 
 class TestCustomUser(TestCase):
     user = CustomUser()
@@ -270,11 +272,12 @@ class TestCustomUser(TestCase):
         self.assertEqual(self.user.update_history({"new meeting 2": "Meeting 2 info"}), 0)
         self.assertDictEqual({"new meeting 1": "Meeting 1 info", "new meeting 2": "Meeting 2 info"}, self.user.get_historic_meetings())
 
-    def test_set_calender(self):
+    def test_set_calendar(self):
         '''
-        Test function: set_calender
+        Test function: set_calendar
         '''
-        self.assertEqual(self.user.set_calender('https://calendar.google.com/calendar/u/0/r'), 0)
+        self.assertEqual(self.user.set_calendar('https://calendar.google.com/calendar/u/0/r'), 0)
+        self.assertEqual(self.user.calendar, 'https://calendar.google.com/calendar/u/0/r')
         
 
     def test_set_rating(self):
@@ -284,12 +287,16 @@ class TestCustomUser(TestCase):
 
     def set_matching_strategy(self):
         self.assertEqual(self.user.set_matching_strategy('random'), 0)
-        self.assertEqual(self.user.matchingStrategy, RandomMatching)
+        self.assertEqual(self.user.matchingStrategy, RandomMatching())
+        self.assertEqual(self.user.set_matching_strategy('preference'), 0)
+        self.assertEqual(self.user.matchingStrategy, PreferenceMatching())
+        self.assertRaisesMessage(ValueError, 'Invalid input', self.user.set_matching_strategy('anjdvanivoa'))
 
 
 class TestMatchingStrategy(TestCase):
     user1 = CustomUser()
     def test_get_pair(self):
         # The get_pair function should never return the user object itself
-        self.assertNotEqual(RandomMatching.getPair(user=self.user1), self.user1)
+        self.user1.set_matching_strategy('random')
+        self.assertNotEqual(self.user1.matchingStrategy.getPair(user=self.user1), self.user1)
         self.assertNotEqual(PreferenceMatching.getPair(user=self.user1), self.user1)

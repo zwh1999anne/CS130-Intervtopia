@@ -48,6 +48,11 @@ class Response(models.Model):
     def __str__(self) -> str:
         return self.name
 
+    def get_overall_rating(self) -> int:
+        '''
+        TODO 
+        '''
+
 class EvalForm(models.Model):
     name = models.CharField(max_length=100, default="")
     questions = models.ManyToManyField(Question)
@@ -60,3 +65,11 @@ class EvalForm(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+    @staticmethod
+    def set_role(self, role: str):
+        '''
+        TODO: Set the role of this evaluation form
+        '''
+
+    
