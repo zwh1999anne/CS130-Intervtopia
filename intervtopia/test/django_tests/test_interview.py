@@ -2,20 +2,28 @@ from django.test import TestCase, Client
 from interview.models import *
 from external.leetCodeWrapper import leetCodeQuestionQuery, interviewQuestion
 from django.urls import reverse
-# Create your tests here.
 
 
-def import_questions_leetcode(number_qs: int):
-    pb = ProblemDBUpdater()
-    pb.addProblems(number_qs)
-
-
-class QuestionModelTests(TestCase):
+class addRandomQuestionTests(TestCase):
 
     def test_question_import_leetcode(self):
-        import_questions_leetcode(40)
-        q_count= Problem.objects.all().count()
-        self.assertEqual(q_count, 40)
+        q_count_prev = Problem.objects.all().count()
+        query = leetCodeQuestionQuery()
+        test_q_in_db = []
+        for difficulty in range(1, 4):
+            q = query.getRandomQuestion(difficulty)
+            q_in_db = Problem.objects.create(problem_name=q.getTitle(), problem_difficulty=q.getDifficulty(), problem_url=q.getURL(), problem_id=q.getFrontendID())
+            self.assertEqual(q_in_db.problem_name, q.getTitle())
+            self.assertEqual(q_in_db.problem_difficulty, q.getDifficulty())
+            self.assertEqual(q_in_db.problem_url, q.getURL())
+            self.assertEqual(q_in_db.problem_id, q.getFrontendID())
+            test_q_in_db.append(q_in_db)
+        q_count_now= Problem.objects.all().count()
+        self.assertEqual(q_count_now - q_count_prev, 3)
+        for q in test_q_in_db:
+            q.delete()
+        q_count_now= Problem.objects.all().count()
+        self.assertEqual(q_count_now, q_count_prev)
 
 
 class InterviewerModelTests(TestCase):

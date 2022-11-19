@@ -23,6 +23,7 @@ class Interviewee(models.Model):
 class Problem(models.Model):
     difficulty_choices = [('E', 'Easy'), ('M', 'Medium'), ('H', 'Hard'), ('', 'Select a difficulty')]
     problem_name = models.CharField(max_length=20)
+    problem_id = models.IntegerField()
     problem_url = models.URLField()
     problem_statement = models.TextField()
     problem_difficulty = models.CharField(max_length=1, choices=difficulty_choices)
@@ -38,18 +39,3 @@ class Interview(models.Model):
     problems = models.ManyToManyField(Problem)
     date_and_time = models.DateTimeField()
     room_link = models.URLField()
-
-
-class ProblemDBUpdater():
-
-    def addProblems(self, limit=None):
-        query = leetCodeQuestionQuery()
-        # TODO too many queries from the same ip will cause leetcode to close connection
-        # TODO change to async queries
-        if limit is not None:
-            iter_limit = min(query.length(), limit)
-        else:
-            iter_limit = query.length()
-        for i in range(iter_limit):
-            q = query.getQuestion(i)
-            Problem.objects.create(problem_name=q.getTitle(), problem_difficulty=q.getDifficulty(), problem_url=q.getURL(), problem_statement=q.getContent())
