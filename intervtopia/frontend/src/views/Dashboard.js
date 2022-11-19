@@ -129,38 +129,6 @@ function ConfirmMatchModal(props){
   );
 }
 
-function AddFriendModal(props) {
-  return (
-    <Modal
-      {...props}
-      size="lg"
-    >
-      <Modal.Header closeButton>
-        <Modal.Title id="contained-modal-title-vcenter">
-          Sending Friend Invitation to {props.name}
-        </Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <p>
-          You could add a message to {props.name} here.
-        </p>
-        <Form.Group className="mb-3">
-        <Form.Control
-          defaultValue="Let's practice together, as friends!"
-          placeholder="Enter your message here."
-          as="textarea" rows={3}></Form.Control>
-        </Form.Group>
-      </Modal.Body>
-      <Modal.Footer>
-      <Button variant="primary" className="btn-fill" onClick={props.onHide}>
-            Send
-          </Button>
-        <Button variant="secondary" className="btn-fill" onClick={props.onHide}>Cancel</Button>
-      </Modal.Footer>
-    </Modal>
-  );
-}
-
 function Dashboard() {
   const [todolist, settodoList] = useState(toDos);
 
