@@ -118,3 +118,6 @@ Thumbs.db
 **/__pycache__/*
 *.pyc
 **/.ipynb_checkpoints/*
+
+# package of npm
+**/package-lock.json

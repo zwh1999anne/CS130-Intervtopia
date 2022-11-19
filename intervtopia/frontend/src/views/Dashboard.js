@@ -19,6 +19,9 @@ import {
 
 import toDos from "backend_data/to_do_list";
 import interviews_list from "backend_data/interviews_list";
+import { getMatchInfo, matchConfirmed } from "backend_data/match_list";
+
+var current_match = "random";
 
 function AddFriendModal(props) {
   return (
@@ -52,6 +55,80 @@ function AddFriendModal(props) {
   );
 }
 
+function AddMatchModal(props){
+  const [matchType, setmatchType] = React.useState("random");
+  return (
+    <Modal
+      {...props}
+      size="lg"
+    >
+      <Modal.Header closeButton>
+        <Modal.Title id="contained-modal-title-vcenter">
+          Matching you with an awesome peer!
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <p>
+          Please select a matching type below.
+        </p>
+        <Form.Group className="mb-3">
+        <Form.Select
+          defaultValue={matchType}
+          onChange={(e) => {setmatchType(e.currentTarget.value); current_match=matchType}}
+          className="w-100 form-control">
+          <option value="random">Random Matching</option>
+          <option value="history">History Matching</option>
+          <option value="friend">Invite a Friend</option>
+        </Form.Select>
+        </Form.Group>
+      </Modal.Body>
+      <Modal.Footer>
+      <Button variant="primary" className="btn-fill" onClick={props.confirmed}>
+            Confirm
+          </Button>
+        <Button variant="secondary" className="btn-fill" onClick={props.onHide}>Cancel</Button>
+      </Modal.Footer>
+    </Modal>
+  );
+}
+
+function ConfirmMatchModal(props){
+  const match_info = getMatchInfo(current_match);
+  return (
+    <Modal
+      {...props}
+      size="lg"
+    >
+      <Modal.Header closeButton>
+        <Modal.Title id="contained-modal-title-vcenter">
+          We have found an excellent match for you!
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <p>
+          Please confirm if you hope to interview with this matched user:
+        </p>
+        <p>
+          {match_info.name}, good at {match_info.first_language} and {match_info.second_language}, with desired difficulty at {match_info.desired_difficulty} level
+        </p>
+        <p>
+           {match_info.name} got {match_info.evaluation_score} in the previous interview evaluations.
+        </p>
+        <p>
+          You could meet {match_info.name} on {match_info.available_day} at {match_info.available_time}.
+        </p>
+        
+      </Modal.Body>
+      <Modal.Footer>
+      <Button variant="primary" className="btn-fill" onClick={() => {props.onHide(); matchConfirmed(match_info.name, match_info.available_day, match_info.available_time)}}>
+            Confirm
+          </Button>
+        <Button variant="secondary" className="btn-fill" onClick={props.onHide}>Cancel</Button>
+      </Modal.Footer>
+    </Modal>
+  );
+}
+
 function Dashboard() {
   const [todolist, settodoList] = useState(toDos);
 
@@ -61,6 +138,9 @@ function Dashboard() {
 
   const [addFriendModalShow, setaddFriendModalShow] = React.useState(false);
   const [FriendModalName, setFriendModalName] = React.useState(" ");
+  
+  const [addMatchModalShow, setaddMatchModalShow] = React.useState(false);
+  const [confirmMatchModalShow, setconfirmMatchModalShow] = React.useState(false);
 
   return (
     <>
@@ -181,9 +261,13 @@ function Dashboard() {
                matched within your history, 
                or invite a friend!
               </p>
-              <Button variant="primary" className="btn-fill">
+              <Button variant="primary" className="btn-fill" onClick={() => {setaddMatchModalShow(true)}}>
               Add New Match
               </Button>
+              <AddMatchModal show={addMatchModalShow} 
+              onHide={() => setaddMatchModalShow(false)} 
+              confirmed={() => {setaddMatchModalShow(false); setconfirmMatchModalShow(true)}}></AddMatchModal>
+              <ConfirmMatchModal show={confirmMatchModalShow} onHide={() => setconfirmMatchModalShow(false)}></ConfirmMatchModal>
               </Card.Body>
             </Card>
           </Col>
@@ -233,6 +317,5 @@ function Dashboard() {
     </>
   );
 }
-import interviews from "backend_data/interviews_list";
 
 export default Dashboard;
