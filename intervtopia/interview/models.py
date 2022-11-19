@@ -41,7 +41,6 @@ class Interview(models.Model):
 
 
 class ProblemDBUpdater():
-
     def addProblems(self, limit=None):
         query = leetCodeQuestionQuery()
         # TODO too many queries from the same ip will cause leetcode to close connection

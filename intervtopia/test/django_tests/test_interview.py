@@ -11,26 +11,22 @@ def import_questions_leetcode(number_qs: int):
 
 
 class QuestionModelTests(TestCase):
-
     def test_question_import_leetcode(self):
         import_questions_leetcode(40)
-        q_count= Problem.objects.all().count()
+        q_count = Problem.objects.all().count()
         self.assertEqual(q_count, 40)
 
 
 class InterviewerModelTests(TestCase):
-
     def test_crud_a_interviewer(self):
 
-        test_dict_response = {'name': "Test response", 'problem_solving': 2,
-                              'communication': 3, 'coding_skill': 4, 'helpful': 1}
+        test_dict_response = {'name': "Test response", 'problem_solving': 2, 'communication': 3, 'coding_skill': 4, 'helpful': 1}
 
         response = Response.objects.create(**test_dict_response)
         user1 = CustomUser.objects.create(username='carlo')
         user2 = CustomUser.objects.create(username='david')
 
-        test_dict_eval = {'name': "Test response", 'rating': 2, 'comments': 'no comment', 'response': response,
-                          'targer_user': user1, 'target_role': 'EE'}
+        test_dict_eval = {'name': "Test response", 'rating': 2, 'comments': 'no comment', 'response': response, 'targer_user': user1, 'target_role': 'EE'}
 
         evalform = EvalForm.objects.create(**test_dict_eval)
 
@@ -77,22 +73,18 @@ class InterviewerModelTests(TestCase):
 
 
 class InterviewModelTests(TestCase):
-
     def test_crud_a_interview(self):
 
-        test_dict_response = {'name': "Test response", 'problem_solving': 2,
-                              'communication': 3, 'coding_skill': 4, 'helpful': 1}
+        test_dict_response = {'name': "Test response", 'problem_solving': 2, 'communication': 3, 'coding_skill': 4, 'helpful': 1}
 
         response = Response.objects.create(**test_dict_response)
 
         user1 = CustomUser.objects.create(username='carlo')
         user2 = CustomUser.objects.create(username='david')
 
-        test_dict_eval_ee = {'name': "Test response", 'rating': 2, 'comments': 'no comment', 'response': response,
-                             'targer_user': user1, 'target_role': 'EE'}
+        test_dict_eval_ee = {'name': "Test response", 'rating': 2, 'comments': 'no comment', 'response': response, 'targer_user': user1, 'target_role': 'EE'}
 
-        test_dict_eval_er = {'name': "Test response", 'rating': 2, 'comments': 'no comment', 'response': response,
-                             'targer_user': user2, 'target_role': 'ER'}
+        test_dict_eval_er = {'name': "Test response", 'rating': 2, 'comments': 'no comment', 'response': response, 'targer_user': user2, 'target_role': 'ER'}
 
         evalform_ee = EvalForm.objects.create(**test_dict_eval_ee)
         evalform_er = EvalForm.objects.create(**test_dict_eval_er)
@@ -100,8 +92,7 @@ class InterviewModelTests(TestCase):
         interviewer = Interviewer.objects.create(user=user1, evalForm=evalform_er)
         interviewee = Interviewee.objects.create(user=user2, evalForm=evalform_ee)
 
-        test_dict = {'name': "Test interview", 'viewER': interviewer, 'viewEE': interviewee,
-                     'date_and_time': '2022-11-04 14:30', 'room_link': 'www.google.com'}
+        test_dict = {'name': "Test interview", 'viewER': interviewer, 'viewEE': interviewee, 'date_and_time': '2022-11-04 14:30', 'room_link': 'www.google.com'}
 
         # create
         interview = Interview.objects.create(**test_dict)
@@ -149,11 +140,9 @@ class InterviewModelTests(TestCase):
 
 
 class ProblemModelTests(TestCase):
-
     def test_crud_a_problem(self):
 
-        test_dict = {'problem_name': "Test problem", 'problem_url': 'www.google.com',
-                     'problem_statement': 'this is a test problem', 'problem_difficulty': 'M'}
+        test_dict = {'problem_name': "Test problem", 'problem_url': 'www.google.com', 'problem_statement': 'this is a test problem', 'problem_difficulty': 'M'}
 
         # create
         problem = Problem.objects.create(**test_dict)

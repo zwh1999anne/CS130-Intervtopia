@@ -7,7 +7,6 @@ from django.http import HttpResponseRedirect
 from evaluation.models import *
 from interview.models import *
 
-
 # Create your views here.
 
 
@@ -46,4 +45,3 @@ def submit(request):
 def results(request):
     response = "You're looking at the results of evaluation"
     return HttpResponse(response)
-

@@ -2,23 +2,20 @@ from django.test import TestCase
 from users.models import Language, Company, Position, Calendar, CustomUser, RandomMatching, PreferenceMatching
 # Create your tests here.
 
-class TestLanguage(TestCase):
 
+class TestLanguage(TestCase):
     def test_add(self):
         # Test insertion: valid input
-        self.assertEqual(Language.add('TestLang'), Language.objects.get(lang_name = 'TestLang'))
+        self.assertEqual(Language.add('TestLang'), Language.objects.get(lang_name='TestLang'))
         # Test insertion: invalid input
         self.assertRaisesMessage(ValueError, "input cannot be empty", Language.add(''))
-        self.assertWarnsMessage(UserWarning, 
-            "This language has not been seen before, please make sure it is valid", 
-            Language.add('anvnoadnvandoanigfnaoi')
-        )
-        
+        self.assertWarnsMessage(UserWarning, "This language has not been seen before, please make sure it is valid", Language.add('anvnoadnvandoanigfnaoi'))
+
     def test_remove(self):
         # Test remove a language from the database
         Language.add('TestLang')
         Language.remove('TestLang')
-        self.assertEqual(len(Language.objects.filter(lang_name = 'TestLang')), 0)
+        self.assertEqual(len(Language.objects.filter(lang_name='TestLang')), 0)
         # If the input is empty raise an error
         self.assertRaisesMessage(ValueError, "input cannot be empty", Language.remove(''))
         # If the input is not in the database, raise an error
@@ -31,24 +28,22 @@ class TestLanguage(TestCase):
         Language.remove('TestLang')
         self.assertRaisesMessage(ValueError, 'TestLang is not in the database', Language.get('TestLang'))
 
+
 class TestCompany(TestCase):
     testCompany = 'TestCompany'
 
     def test_add(self):
         # Test insertion: valid input
-        self.assertEqual(Company.add(self.testCompany), Company.objects.get(company_name = self.testCompany))
+        self.assertEqual(Company.add(self.testCompany), Company.objects.get(company_name=self.testCompany))
         # Test insertion: invalid input
         self.assertRaisesMessage(ValueError, "input cannot be empty", Company.add(''))
-        self.assertWarnsMessage(UserWarning, 
-            "This company has not been seen before, please make sure it is valid", 
-            Company.add('anvnoadnvandoanigfnaoi')
-        )
-        
+        self.assertWarnsMessage(UserWarning, "This company has not been seen before, please make sure it is valid", Company.add('anvnoadnvandoanigfnaoi'))
+
     def test_remove(self):
         # Test remove a company from the database
         Company.add(self.testCompany)
         Company.remove(self.testCompany)
-        self.assertEqual(len(Company.objects.filter(company_name = self.testCompany)), 0)
+        self.assertEqual(len(Company.objects.filter(company_name=self.testCompany)), 0)
         # If the input is empty raise an error
         self.assertRaisesMessage(ValueError, "input cannot be empty", Company.remove(''))
         # If the input is not in the database, raise an error
@@ -70,24 +65,22 @@ class TestCompany(TestCase):
         self.assertRaisesMessage(ValueError, "RandomTestCompany is not in the database", Company.update('RandomTestCompany', self.testCompany))
         Company.remove(self.testCompany)
 
+
 class TestPosition(TestCase):
     testPosition = 'TestPosition'
 
     def test_add(self):
         # Test insertion: valid input
-        self.assertEqual(Position.add(self.testPosition), Position.objects.get(position_name = self.testPosition))
+        self.assertEqual(Position.add(self.testPosition), Position.objects.get(position_name=self.testPosition))
         # Test insertion: invalid input
         self.assertRaisesMessage(ValueError, "input cannot be empty", Position.add(''))
-        self.assertWarnsMessage(UserWarning, 
-            "This position has not been seen before, please make sure it is valid", 
-            Position.add('anvnoadnvandoanigfnaoi')
-        )
-        
+        self.assertWarnsMessage(UserWarning, "This position has not been seen before, please make sure it is valid", Position.add('anvnoadnvandoanigfnaoi'))
+
     def test_remove(self):
         # Test remove a company from the database
         Position.add(self.testPosition)
         Position.remove(self.testPosition)
-        self.assertEqual(len(Position.objects.filter(position_name = self.testPosition)), 0)
+        self.assertEqual(len(Position.objects.filter(position_name=self.testPosition)), 0)
         # If the input is empty raise an error
         self.assertRaisesMessage(ValueError, "input cannot be empty", Position.remove(''))
         # If the input is not in the database, raise an error
@@ -107,20 +100,21 @@ class TestPosition(TestCase):
         self.assertRaisesMessage(ValueError, "input cannot be empty", Position.update('', self.testPosition))
         self.assertRaisesMessage(ValueError, "input cannot be empty", Position.update('', ''))
         self.assertRaisesMessage(ValueError, "RandomTestPosition is not in the database", Position.update('RandomTestPosition', self.testPosition))
-        
+
+
 class TestCalendar(TestCase):
     testCalendarURL = 'https://calendar.google.com/calendar/u/0/r'
 
     def test_add(self):
         # Test insertion: valid input
-        self.assertEqual(Calendar.add(self.testCalendarURL), Calendar.objects.get(ext_url = self.testCalendarURL))
+        self.assertEqual(Calendar.add(self.testCalendarURL), Calendar.objects.get(ext_url=self.testCalendarURL))
         # Test insertion: invalid input
         self.assertRaisesMessage(ValueError, "input cannot be empty", Calendar.add(''))
-        
+
     def test_remove(self):
         Calendar.add(self.testCalendarURL)
         Calendar.remove(self.testCalendarURL)
-        self.assertEqual(len(Calendar.objects.filter(ext_url = self.testCalendarURL)), 0)
+        self.assertEqual(len(Calendar.objects.filter(ext_url=self.testCalendarURL)), 0)
         # If the input is empty raise an error
         self.assertRaisesMessage(ValueError, "input cannot be empty", Calendar.remove(''))
         # If the input is not in the database, raise an error
@@ -140,6 +134,7 @@ class TestCalendar(TestCase):
         self.assertRaisesMessage(ValueError, "input cannot be empty", Calendar.update('', ''))
         self.assertRaisesMessage(ValueError, "RondamTestURL is not in the database", Calendar.update('RandomTestPosition', self.testCalendarURL))
 
+
 class TestCustomUser(TestCase):
     user = CustomUser()
 
@@ -150,15 +145,13 @@ class TestCustomUser(TestCase):
             1. the function should create a CustomUser object, store it in the database and return the object
             2. the function should take care of invalid inputs
         '''
-        user = CustomUser.create_user_base(username = 'Test user', password='123456', email='test@intervtopia.com')
+        user = CustomUser.create_user_base(username='Test user', password='123456', email='test@intervtopia.com')
         self.assertEqual(user.username, 'Test user')
         self.assertEqual(user.password, '123456')
         self.assertEqual(user.email, 'test@intervtopia.com')
         self.assertRaises(ValueError, CustomUser.create_user_base(username='', password='', email=''))
-        self.assertRaisesMessage(ValueError, 
-            "Username Test user is taken, pick another name", 
-            CustomUser.create_user_base(username='Test user', password='abdvajdiavna', email='test@intervtopia.com')
-        )
+        self.assertRaisesMessage(ValueError, "Username Test user is taken, pick another name", CustomUser.create_user_base(username='Test user', password='abdvajdiavna',
+                                                                                                                           email='test@intervtopia.com'))
 
     def test_add_target_company(self):
         '''
@@ -174,8 +167,7 @@ class TestCustomUser(TestCase):
         self.assertEqual(self.user.add_target_company('Google'), 0)
         self.assertTrue(Company.get('Google') in self.user.target_companys)
         self.assertNotEqual(self.user.add_target_company(''), 0)
-        
-        
+
     def test_remove_target_company(self):
         '''
         Test function: add_target_company
@@ -190,14 +182,8 @@ class TestCustomUser(TestCase):
         self.user.add_target_company('Google')
         self.assertEqual(self.user.remove_target_company('Google'), 0)
         self.assertNotEqual(self.user.remove_target_company(''), 0)
-        self.assertRaisesMessage(ValueError,
-            'Invalid input: input is empty',
-            self.user.remove_target_company('')
-        )
-        self.assertRaisesMessage(ValueError, 
-            'Invalid input: Google is not in the list',
-            self.user.remove_target_company('Google')
-        )
+        self.assertRaisesMessage(ValueError, 'Invalid input: input is empty', self.user.remove_target_company(''))
+        self.assertRaisesMessage(ValueError, 'Invalid input: Google is not in the list', self.user.remove_target_company('Google'))
 
     def test_add_target_position(self):
         '''
@@ -218,14 +204,8 @@ class TestCustomUser(TestCase):
         self.user.add_target_position('Software Engineer')
         self.assertEqual(self.user.remove_target_position('Software Engineer'), 0)
         self.assertNotEqual(self.user.remove_target_position(''), 0)
-        self.assertRaisesMessage(ValueError,
-            'Invalid input: input is empty',
-            self.user.remove_target_position('')
-        )
-        self.assertRaisesMessage(ValueError, 
-            'Invalid input: Software Engineer is not in the list',
-            self.user.remove_target_position('Software Engineer')
-        )
+        self.assertRaisesMessage(ValueError, 'Invalid input: input is empty', self.user.remove_target_position(''))
+        self.assertRaisesMessage(ValueError, 'Invalid input: Software Engineer is not in the list', self.user.remove_target_position('Software Engineer'))
 
     def test_add_preferred_language(self):
         '''
@@ -246,14 +226,8 @@ class TestCustomUser(TestCase):
         self.user.add_preferred_language('Python')
         self.assertEqual(self.user.add_preferred_language('Python'), 0)
         self.assertNotEqual(self.user.add_preferred_language(''), 0)
-        self.assertRaisesMessage(ValueError,
-            'Invalid input: input is empty',
-            self.user.add_preferred_language('')
-        )
-        self.assertRaisesMessage(ValueError, 
-            'Invalid input: Python is not in the list',
-            self.user.add_preferred_language('Python')
-        )
+        self.assertRaisesMessage(ValueError, 'Invalid input: input is empty', self.user.add_preferred_language(''))
+        self.assertRaisesMessage(ValueError, 'Invalid input: Python is not in the list', self.user.add_preferred_language('Python'))
 
     def test_set_preferred_difficulty(self):
         self.assertEqual(self.user.set_preferred_difficulty('Easy'), 0)
@@ -278,7 +252,6 @@ class TestCustomUser(TestCase):
         '''
         self.assertEqual(self.user.set_calendar('https://calendar.google.com/calendar/u/0/r'), 0)
         self.assertEqual(self.user.calendar, 'https://calendar.google.com/calendar/u/0/r')
-        
 
     def test_set_rating(self):
         self.assertEqual(self.user.set_rating(3.4), 0)
@@ -295,6 +268,7 @@ class TestCustomUser(TestCase):
 
 class TestMatchingStrategy(TestCase):
     user1 = CustomUser()
+
     def test_get_pair(self):
         # The get_pair function should never return the user object itself
         self.user1.set_matching_strategy('random')

@@ -21,6 +21,7 @@ class Question(models.Model):
     def __str__(self) -> str:
         return self.question_text
 
+
 class Choice(models.Model):
     """
     question: ask question
@@ -53,6 +54,7 @@ class Response(models.Model):
         TODO 
         '''
 
+
 class EvalForm(models.Model):
     name = models.CharField(max_length=100, default="")
     questions = models.ManyToManyField(Question)
@@ -71,5 +73,3 @@ class EvalForm(models.Model):
         '''
         TODO: Set the role of this evaluation form
         '''
-
-    

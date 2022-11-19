@@ -5,10 +5,8 @@ from django.urls import reverse
 
 
 class QuestionModelTests(TestCase):
-
     def test_crud_a_question(self):
-        test_dict = {'question_text': "Test Question for interviewee", 'target': 'EE',
-                     'question_ranking': 99, 'question_name': 'test_q_for_ee'}
+        test_dict = {'question_text': "Test Question for interviewee", 'target': 'EE', 'question_ranking': 99, 'question_name': 'test_q_for_ee'}
 
         # create
         question = Question.objects.create(**test_dict)
@@ -47,13 +45,10 @@ class QuestionModelTests(TestCase):
 
 
 class ChoiceModelTests(TestCase):
-
     def test_crud_a_chioce(self):
-        test_dict_question = {'question_text': "Test Question for interviewee", 'target': 'EE',
-                              'question_ranking': 99, 'question_name': 'test_q_for_ee'}
+        test_dict_question = {'question_text': "Test Question for interviewee", 'target': 'EE', 'question_ranking': 99, 'question_name': 'test_q_for_ee'}
         question = Question.objects.create(**test_dict_question)
-        test_dict_choice = {'question': question, 'choice_value': 3,
-                            'choice_text': "so so", 'selected': False}
+        test_dict_choice = {'question': question, 'choice_value': 3, 'choice_text': "so so", 'selected': False}
 
         # create
         choice = Choice.objects.create(**test_dict_choice)
@@ -97,10 +92,8 @@ class ChoiceModelTests(TestCase):
 
 
 class ResponseModelTests(TestCase):
-
     def test_crud_a_response(self):
-        test_dict = {'name': "Test response", 'problem_solving': 2,
-                     'communication': 3, 'coding_skill': 4, 'helpful': 1}
+        test_dict = {'name': "Test response", 'problem_solving': 2, 'communication': 3, 'coding_skill': 4, 'helpful': 1}
 
         # create
         response = Response.objects.create(**test_dict)
@@ -145,22 +138,17 @@ class ResponseModelTests(TestCase):
 
 
 class EvalFormModelTests(TestCase):
-
     def test_crud_a_eval_form(self):
-        test_dict_response = {'name': "Test response", 'problem_solving': 2,
-                              'communication': 3, 'coding_skill': 4, 'helpful': 1}
-        test_dict_question1 = {'question_text': "Test Question 1 for interviewee", 'target': 'EE',
-                               'question_ranking': 99, 'question_name': 'test_q_for_ee'}
-        test_dict_question2 = {'question_text': "Test Question 2 for interviewee", 'target': 'EE',
-                               'question_ranking': 99, 'question_name': 'test_q_for_ee'}
+        test_dict_response = {'name': "Test response", 'problem_solving': 2, 'communication': 3, 'coding_skill': 4, 'helpful': 1}
+        test_dict_question1 = {'question_text': "Test Question 1 for interviewee", 'target': 'EE', 'question_ranking': 99, 'question_name': 'test_q_for_ee'}
+        test_dict_question2 = {'question_text': "Test Question 2 for interviewee", 'target': 'EE', 'question_ranking': 99, 'question_name': 'test_q_for_ee'}
 
         response = Response.objects.create(**test_dict_response)
         question1 = Question.objects.create(**test_dict_question1)
         question2 = Question.objects.create(**test_dict_question2)
         user = CustomUser.objects.create(username='carlo')
 
-        test_dict_eval = {'name': "Test response", 'rating': 2, 'comments': 'no comment', 'response': response,
-                          'targer_user': user, 'target_role': 'EE'}
+        test_dict_eval = {'name': "Test response", 'rating': 2, 'comments': 'no comment', 'response': response, 'targer_user': user, 'target_role': 'EE'}
 
         # create
         evalform = EvalForm.objects.create(**test_dict_eval)

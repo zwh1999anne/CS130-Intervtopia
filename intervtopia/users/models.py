@@ -11,22 +11,21 @@ class Language(models.Model):
     def __str__(self) -> str:
         return self.lang_name
 
-
     @staticmethod
     def add(lang: str):
-        if len(Language.objects.filter(lang_name = lang)) == 0:
-            lang = Language.objects.create(lang_name = lang)
+        if len(Language.objects.filter(lang_name=lang)) == 0:
+            lang = Language.objects.create(lang_name=lang)
             return lang
 
     @staticmethod
     def remove(lang: str):
-        filter_results = Language.objects.filter(lang_name = lang)
+        filter_results = Language.objects.filter(lang_name=lang)
         if len(filter_results) != 0:
             filter_results.delete()
 
     @staticmethod
     def get(lang: str):
-        return Language.objects.filter(lang_name = lang)
+        return Language.objects.filter(lang_name=lang)
 
 
 class Company(models.Model):
@@ -35,29 +34,28 @@ class Company(models.Model):
     def __str__(self) -> str:
         return self.company_name
 
-
     @staticmethod
     def add(company: str):
-        if len(Company.objects.filter(company_name = company)) == 0:
-            comp = Company.objects.create(company_name = company)
+        if len(Company.objects.filter(company_name=company)) == 0:
+            comp = Company.objects.create(company_name=company)
             return comp
 
     @staticmethod
     def remove(company: str):
-        filter_results = Company.objects.filter(company_name = company)
+        filter_results = Company.objects.filter(company_name=company)
         if len(filter_results) != 0:
             filter_results.delete()
 
     @staticmethod
     def update(old_name: str, new_name: str):
-        filter_results = Company.objects.filter(company_name = old_name)
+        filter_results = Company.objects.filter(company_name=old_name)
         if len(filter_results) != 0:
-            filter_results[0].update(company_name = new_name)
-        return Company.objects.filter(company_name = new_name)
+            filter_results[0].update(company_name=new_name)
+        return Company.objects.filter(company_name=new_name)
 
     @staticmethod
     def get(company: str):
-        return Company.objects.filter(company_name = company)
+        return Company.objects.filter(company_name=company)
 
 
 class Position(models.Model):
@@ -66,28 +64,27 @@ class Position(models.Model):
     def __str__(self) -> str:
         return self.position_name
 
-
     @staticmethod
     def add(position: str):
-        if len(Position.objects.filter(position_name = position)) == 0:
-            pos = Position.objects.create(position_name = position)
+        if len(Position.objects.filter(position_name=position)) == 0:
+            pos = Position.objects.create(position_name=position)
             return pos
 
     @staticmethod
     def remove(position: str):
-        filter_results = Position.objects.filter(position_name = position)
+        filter_results = Position.objects.filter(position_name=position)
         if len(filter_results) != 0:
             filter_results.delete()
 
     @staticmethod
     def update(old_name: str, new_name: str):
-        filter_results = Position.objects.filter(position_name = old_name)
+        filter_results = Position.objects.filter(position_name=old_name)
         if len(filter_results) != 0:
-            filter_results[0].update(position_name = new_name)
+            filter_results[0].update(position_name=new_name)
 
     @staticmethod
     def get(position: str):
-        return Position.objects.filter(position_name = position)
+        return Position.objects.filter(position_name=position)
 
 
 class Calendar(models.Model):
@@ -98,48 +95,44 @@ class Calendar(models.Model):
 
     @staticmethod
     def add(calendar_url: str):
-        if len(Calendar.objects.filter(ext_url = calendar_url)) == 0:
-            cal = Calendar.objects.create(ext_url = calendar_url)
+        if len(Calendar.objects.filter(ext_url=calendar_url)) == 0:
+            cal = Calendar.objects.create(ext_url=calendar_url)
             return cal
 
     @staticmethod
     def remove(calendar_url: str):
-        filter_results = Calendar.objects.filter(ext_url = calendar_url)
+        filter_results = Calendar.objects.filter(ext_url=calendar_url)
         if len(filter_results) != 0:
             filter_results.delete()
 
     @staticmethod
     def update(old_calendar_url: str, new_calendar_url: str):
-        filter_results = Calendar.objects.filter(ext_url = old_calendar_url)
+        filter_results = Calendar.objects.filter(ext_url=old_calendar_url)
         if len(filter_results) != 0:
-            filter_results[0].update(ext_url = new_calendar_url)
+            filter_results[0].update(ext_url=new_calendar_url)
 
     @staticmethod
     def get(calendar_url: str):
-        return Calendar.objects.filter(ext_url = calendar_url)
-    
+        return Calendar.objects.filter(ext_url=calendar_url)
+
 
 class CustomUser(AbstractUser):
     difficulty_choices = [('E', 'Easy'), ('M', 'Medium'), ('H', 'Hard'), ('', 'Select a difficulty')]
     target_companys = models.ManyToManyField(Company)
     target_positions = models.ManyToManyField(Position)
     preferred_languages = models.ManyToManyField(Language)
-    preferred_difficulty = models.CharField(max_length = 1, choices = difficulty_choices, default = '')
-    calendar = models.OneToOneField(Calendar, on_delete = models.CASCADE, null = True)
-    history = models.JSONField(blank = True, null = True)
-    rating = models.FloatField(default = 0)
-    matching_choices = [
-        ('random', 'RandomMatching'),
-        ('preference', 'PreferenceMatching')
-    ]
-    matchingStrategy = models.CharField(max_length = 20, choices = matching_choices, default = 'random')
-
+    preferred_difficulty = models.CharField(max_length=1, choices=difficulty_choices, default='')
+    calendar = models.OneToOneField(Calendar, on_delete=models.CASCADE, null=True)
+    history = models.JSONField(blank=True, null=True)
+    rating = models.FloatField(default=0)
+    matching_choices = [('random', 'RandomMatching'), ('preference', 'PreferenceMatching')]
+    matchingStrategy = models.CharField(max_length=20, choices=matching_choices, default='random')
 
     def __str__(self) -> str:
         return self.username
 
     @staticmethod
-    def create_user_base(username:str, password: str, email: str):
+    def create_user_base(username: str, password: str, email: str):
         '''
         TODO: Create a base user object and store it in the database, return the object
         '''
@@ -208,7 +201,7 @@ class CustomUser(AbstractUser):
 
         print("Set user's preferred difficulty as {}".format(diff))
         return True
-    
+
     def update_history(self, new_interivew: dict) -> int:
         '''
         TODO: add the new interview information to the history list
@@ -219,7 +212,6 @@ class CustomUser(AbstractUser):
         '''
         print("Adding meeting {} to user's history".format(new_interivew))
         return True
-
 
     def get_historic_meetings(self) -> dict:
         '''
@@ -251,7 +243,6 @@ class CustomUser(AbstractUser):
         '''
         print("Setting user's matching strategy to {}".format(strategy))
         return True
-
 
 
 '''

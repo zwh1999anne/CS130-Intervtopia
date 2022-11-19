@@ -4,7 +4,6 @@ from external.IDE import IDE
 
 
 class randomTestCase(unittest.TestCase):
-
     @classmethod
     def setUpClass(cls):
         # TODO wait for user class done for information hiding (no longer pass inside uids)

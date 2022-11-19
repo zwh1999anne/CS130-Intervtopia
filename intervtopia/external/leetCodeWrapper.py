@@ -3,7 +3,6 @@ import json
 
 
 class interviewQuestion():
-
     def __init__(self):
         self._q_title = None
         self._q_difficulty = None
@@ -44,7 +43,6 @@ class interviewQuestion():
 
 
 class leetCodeQuestionQuery():
-
     def __init__(self):
         self._meta_link = "https://leetcode.com/api/problems/algorithms/"
         self._question_link_prefix = "https://leetcode.com/problems/"
