@@ -815,3 +815,12 @@
   display: block;
   width: 100%;
 }
+
+.modal-backdrop.fade {
+  opacity: 0;
+  filter: alpha(opacity=0);
+  }
+.modal-backdrop.fade.in {
+  opacity: 0.2;
+  filter: alpha(opacity=50);
+  }

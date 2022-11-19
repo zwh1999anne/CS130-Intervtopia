@@ -369,6 +369,7 @@ body > .navbar-collapse{
 
 .modal{
     &.show{
+        background: rgba(0, 0, 0, 0.22);
         .modal-dialog{
             -webkit-transform: translate(0, 30%);
             -o-transform: translate(0, 30%);
