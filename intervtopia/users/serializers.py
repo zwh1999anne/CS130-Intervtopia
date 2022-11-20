@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser
+from .models import CustomUser, ToDoItem, HistoryItem
 
 class PreferenceSerializer(serializers.HyperlinkedModelSerializer):
     target_companys = serializers.StringRelatedField(many=True)
@@ -24,3 +24,20 @@ class PreferenceSerializer(serializers.HyperlinkedModelSerializer):
             'rating'
         ]
 
+class ToDoSerializer(serializers.HyperlinkedModelSerializer):
+    owner = serializers.StringRelatedField()
+    class Meta:
+        model = ToDoItem
+        fields = ['url', 'owner', 'name', 'type', 'time']
+
+class HistorySerializer(serializers.HyperlinkedModelSerializer):
+    owner = serializers.StringRelatedField()
+    class Meta:
+        model = HistoryItem
+        fields = [
+            'id',
+            'owner',
+            'name',
+            'time',
+            'evaluated'
+        ]

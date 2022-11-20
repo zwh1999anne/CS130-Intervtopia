@@ -270,6 +270,34 @@ class CustomUser(AbstractUser):
         return True
 
 
+class ToDoItem(models.Model):
+    '''
+    name: "Yadi C",
+    type: "interview",
+    time: "Nov 7th, 10: 00"
+    '''
+    type_choices = [
+        ('I', 'Interview'), 
+        ('E', 'Evaluation')
+    ]
+    owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    name = models.CharField(max_length=150, default='')
+    type = models.CharField(max_length=1, choices=type_choices)
+    time = models.DateTimeField(auto_now_add=True)
+    
+class HistoryItem(models.Model):
+    '''
+    id: "1",
+    name: "Haofan L",
+    time: "Nov 1st, 9: 00",
+    evaluated: "No"
+    '''
+    owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    name = models.CharField(max_length=150, default='')
+    time = models.DateTimeField(default=now)
+    evaluated = models.BooleanField(default=False)
+
+
 '''
     The Matching Strategy interface
     Strategy Pattern
