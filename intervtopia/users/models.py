@@ -116,17 +116,43 @@ class Calendar(models.Model):
         return Calendar.objects.filter(ext_url=calendar_url)
 
 
+class Availability(models.Model):
+    day_choices = [
+        ('Mon', 'Monday'),
+        ('Tue', 'Tuesday'),
+        ('Wed', 'Wednesday'),
+        ('Thu', 'Thursday'),
+        ('Fri', 'Friday'),
+        ('Sat', 'Saturday'),
+        ('Sun', 'Sunday')
+    ]
+    day = models.CharField(max_length=3, choices= day_choices, default='')
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+
+    def __str__(self) -> str:
+        return self.day + ': {}-{}'.format(self.start_time, self.end_time)
+
+
 class CustomUser(AbstractUser):
     difficulty_choices = [('E', 'Easy'), ('M', 'Medium'), ('H', 'Hard'), ('', 'Select a difficulty')]
     target_companys = models.ManyToManyField(Company)
     target_positions = models.ManyToManyField(Position)
     preferred_languages = models.ManyToManyField(Language)
     preferred_difficulty = models.CharField(max_length=1, choices=difficulty_choices, default='')
-    calendar = models.OneToOneField(Calendar, on_delete=models.CASCADE, null=True)
-    history = models.JSONField(blank=True, null=True)
-    rating = models.FloatField(default=0)
+    availability = models.ManyToManyField(Availability)
+    education = models.CharField(max_length=150, default='')
+    role_choices = [
+        ('B', 'Both'),
+        ('ER', 'Interviewer'),
+        ('EE', 'Interviewee'),
+    ]
     matching_choices = [('random', 'RandomMatching'), ('preference', 'PreferenceMatching')]
     matchingStrategy = models.CharField(max_length=20, choices=matching_choices, default='random')
+    preferred_role = models.CharField(max_length=2, choices= role_choices, default='')
+    # history = models.JSONField(blank=True, null=True)
+    rating = models.FloatField(default=0)
+    
 
     def __str__(self) -> str:
         return self.username
@@ -243,6 +269,34 @@ class CustomUser(AbstractUser):
         '''
         print("Setting user's matching strategy to {}".format(strategy))
         return True
+
+
+class ToDoItem(models.Model):
+    '''
+    name: "Yadi C",
+    type: "interview",
+    time: "Nov 7th, 10: 00"
+    '''
+    type_choices = [
+        ('I', 'Interview'), 
+        ('E', 'Evaluation')
+    ]
+    owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    name = models.CharField(max_length=150, default='')
+    type = models.CharField(max_length=1, choices=type_choices)
+    time = models.DateTimeField(auto_now_add=True)
+    
+class HistoryItem(models.Model):
+    '''
+    id: "1",
+    name: "Haofan L",
+    time: "Nov 1st, 9: 00",
+    evaluated: "No"
+    '''
+    owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    name = models.CharField(max_length=150, default='')
+    time = models.DateTimeField(default=now)
+    evaluated = models.BooleanField(default=False)
 
 
 '''
