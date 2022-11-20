@@ -14,6 +14,7 @@ class PreferenceSerializer(serializers.HyperlinkedModelSerializer):
             'url', 
             'username', 
             'email', 
+            'education',
             'target_companys', 
             'target_positions', 
             'matchingStrategy', 

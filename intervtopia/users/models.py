@@ -141,6 +141,7 @@ class CustomUser(AbstractUser):
     preferred_languages = models.ManyToManyField(Language)
     preferred_difficulty = models.CharField(max_length=1, choices=difficulty_choices, default='')
     availability = models.ManyToManyField(Availability)
+    education = models.CharField(max_length=150, default='')
     role_choices = [
         ('B', 'Both'),
         ('ER', 'Interviewer'),
