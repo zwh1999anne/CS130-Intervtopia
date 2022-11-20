@@ -1,4 +1,5 @@
 class instantOnlineService:
+
     def __init__(self, uid1, uid2):  # TODO wait for user class done for information hiding (no longer pass inside uids)
         self.uid1 = uid1
         self.uid2 = uid2
