@@ -5,19 +5,30 @@ from django.urls import reverse
 # Create your tests here.
 
 
-def import_questions_leetcode(number_qs: int):
-    pb = ProblemDBUpdater()
-    pb.addProblems(number_qs)
+class addRandomQuestionTests(TestCase):
 
-
-class QuestionModelTests(TestCase):
     def test_question_import_leetcode(self):
-        import_questions_leetcode(40)
-        q_count = Problem.objects.all().count()
-        self.assertEqual(q_count, 40)
+        q_count_prev = Problem.objects.all().count()
+        query = leetCodeQuestionQuery()
+        test_q_in_db = []
+        for difficulty in range(1, 4):
+            q = query.getRandomQuestion(difficulty)
+            q_in_db = Problem.objects.create(problem_name=q.getTitle(), problem_difficulty=q.getDifficulty(), problem_url=q.getURL(), problem_id=q.getFrontendID())
+            self.assertEqual(q_in_db.problem_name, q.getTitle())
+            self.assertEqual(q_in_db.problem_difficulty, q.getDifficulty())
+            self.assertEqual(q_in_db.problem_url, q.getURL())
+            self.assertEqual(q_in_db.problem_id, q.getFrontendID())
+            test_q_in_db.append(q_in_db)
+        q_count_now = Problem.objects.all().count()
+        self.assertEqual(q_count_now - q_count_prev, 3)
+        for q in test_q_in_db:
+            q.delete()
+        q_count_now = Problem.objects.all().count()
+        self.assertEqual(q_count_now, q_count_prev)
 
 
 class InterviewerModelTests(TestCase):
+
     def test_crud_a_interviewer(self):
 
         test_dict_response = {'name': "Test response", 'problem_solving': 2, 'communication': 3, 'coding_skill': 4, 'helpful': 1}
@@ -73,6 +84,7 @@ class InterviewerModelTests(TestCase):
 
 
 class InterviewModelTests(TestCase):
+
     def test_crud_a_interview(self):
 
         test_dict_response = {'name': "Test response", 'problem_solving': 2, 'communication': 3, 'coding_skill': 4, 'helpful': 1}
@@ -140,6 +152,7 @@ class InterviewModelTests(TestCase):
 
 
 class ProblemModelTests(TestCase):
+
     def test_crud_a_problem(self):
 
         test_dict = {'problem_name': "Test problem", 'problem_url': 'www.google.com', 'problem_statement': 'this is a test problem', 'problem_difficulty': 'M'}

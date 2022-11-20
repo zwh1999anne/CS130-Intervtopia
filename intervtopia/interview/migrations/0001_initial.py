@@ -32,6 +32,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('problem_name', models.CharField(max_length=20)),
+                ('problem_id', models.IntegerField()),
                 ('problem_url', models.URLField()),
                 ('problem_statement', models.TextField()),
                 ('problem_difficulty', models.CharField(choices=[('E', 'Easy'), ('M', 'Medium'), ('H', 'Hard'), ('', 'Select a difficulty')], max_length=1)),
