@@ -1,9 +1,9 @@
-import os
+import subprocess
 
 if __name__ == '__main__':
     print('######DJANGO TESTS######')
-    os.system('python3 test/run_django_tests.py')
+    subprocess.call(['python', 'test/run_django_tests.py'])
     print('######            ######')
     print('######OTHER TESTS######')
-    os.system('python3 -m unittest')
+    subprocess.call(['python', '-m', 'unittest'])
     print('######            ######')
