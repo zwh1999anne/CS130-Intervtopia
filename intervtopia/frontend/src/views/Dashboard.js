@@ -20,6 +20,7 @@ import {
 import toDos from "backend_data/to_do_list";
 import interviews_list from "backend_data/interviews_list";
 import { getMatchInfo, matchConfirmed } from "backend_data/match_list";
+import { getEvalForm, evalConfirmed } from "backend_data/evaluation_form";
 
 var current_match = "random";
 
@@ -129,6 +130,68 @@ function ConfirmMatchModal(props){
   );
 }
 
+function EvaluationModal(props){
+  const eval_questions = getEvalForm();
+  var res_dict = {};
+  return (
+    <Modal
+      {...props}
+      size="lg"
+    >
+      <Modal.Header closeButton>
+        <Modal.Title id="contained-modal-title-vcenter">
+          Please fill in the evaluation form for {props.name}
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+      <Table>
+        <tbody>
+          {
+          eval_questions.map((element) => {
+            if(element.type === "rating"){
+              res_dict[element.dimension] = 5;
+              return <tr key={element.dimension}>
+              <Form.Group>
+              <Form.Label>Please rate the {element.dimension}</Form.Label>
+              <Form.Select defaultValue={5}  className="form-control" onChange={(e) => {res_dict[element.dimension] = e.currentTarget.value;}}>
+                <option value={5}>5</option>
+                <option value={4}>4</option>
+                <option value={3}>3</option>
+                <option value={2}>2</option>
+                <option value={1}>1</option>
+              </Form.Select>
+              </Form.Group>
+              </tr>
+            }
+            else if(element.type === "text"){
+              res_dict[element.dimension] = "";
+              return <tr key={element.dimension}>
+              <Form.Group className="mb-3">
+              <Form.Label>(Optional) Please leave a comment for {props.name}</Form.Label>
+              <Form.Control
+              defaultValue=""
+              placeholder="Enter your comment here."
+              as="textarea" rows={3} 
+              onChange={(e) => {res_dict[element.dimension] = e.currentTarget.value}}></Form.Control>
+              </Form.Group>
+              </tr>
+            }
+          } )
+        }
+         </tbody>
+      </Table>
+      </Modal.Body>
+      <Modal.Footer>
+      <Button variant="primary" className="btn-fill" onClick={() => {props.submitted();evalConfirmed(props.name, res_dict)}}>
+           Submit
+      </Button>
+      <Button variant="secondary" className="btn-fill" onClick={props.onHide}>Cancel</Button>
+      </Modal.Footer>
+    </Modal>
+  );
+
+}
+
 function Dashboard() {
   const [todolist, settodoList] = useState(toDos);
 
@@ -138,6 +201,9 @@ function Dashboard() {
 
   const [addFriendModalShow, setaddFriendModalShow] = React.useState(false);
   const [FriendModalName, setFriendModalName] = React.useState(" ");
+
+  const [evalModalShow, setevalModalShow] = React.useState(false);
+  const [EvalModalName, setEvalModalName] = React.useState(" ");
   
   const [addMatchModalShow, setaddMatchModalShow] = React.useState(false);
   const [confirmMatchModalShow, setconfirmMatchModalShow] = React.useState(false);
@@ -216,9 +282,11 @@ function Dashboard() {
                             <td className="text-left">
                             You have an evaluation form for {element.name} that you interviewed with on {element.time}. 
                             <div className="text-left">
-                              <Button variant="primary" className="btn-fill mr-5" size="sm">
+                              <Button variant="primary" className="btn-fill mr-5" size="sm" onClick={() => {setevalModalShow(true); setEvalModalName(element.name)}}>
                           Evaluate
                           </Button>{' '}
+                          <EvaluationModal name = {EvalModalName} show={evalModalShow} onHide={() => setevalModalShow(false)}
+                          submitted={() => {setevalModalShow(false); deleteTodo(element.id)}}></EvaluationModal>
                           <Button variant="primary" className="mr-5" size="sm" onClick={() => {setaddFriendModalShow(true); setFriendModalName(element.name)}}>Add Friend</Button>{' '}
                           <AddFriendModal name = {FriendModalName} show={addFriendModalShow} onHide={() => setaddFriendModalShow(false)}></AddFriendModal>
                           <Button variant="outline-secondary" size="sm">View Profile</Button>
