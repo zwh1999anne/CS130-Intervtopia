@@ -20,6 +20,7 @@ import {
 import toDos from "backend_data/to_do_list";
 import interviews_list from "backend_data/interviews_list";
 import { getMatchInfo, matchConfirmed } from "backend_data/match_list";
+import service_link from "backend_data/external_service_link";
 import { getEvalForm, evalConfirmed } from "backend_data/evaluation_form";
 
 var current_match = "random";
@@ -189,8 +190,53 @@ function EvaluationModal(props){
       </Modal.Footer>
     </Modal>
   );
-
 }
+
+function JoinMeetingModal(props) {
+  return (
+    <Modal
+      {...props}
+      size="lg"
+    >
+      <Modal.Header closeButton>
+        <Modal.Title id="contained-modal-title-vcenter">
+          Meeting room links with {props.name}
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <Table striped bordered hover>
+          <thead>
+            <tr>
+              <th>Service</th>
+              <th>Link</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Question</td>
+              <td><a href={props.questionLink}  target="_blank">{props.questionLink}</a></td>
+            </tr>
+            <tr>
+              <td>Chatting</td>
+              <td><a href={props.chattingLink}  target="_blank">{props.chattingLink}</a></td>
+            </tr>
+            <tr>
+              <td>IDE</td>
+              <td><a href={props.IDELink}  target="_blank">{props.IDELink}</a></td>
+            </tr>
+          </tbody>
+        </Table>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="primary" className="btn-fill" onClick={props.onHide}>
+          Meeting completed
+        </Button>
+        <Button variant="secondary" className="btn-fill" onClick={props.onHide}>Cancel</Button>
+      </Modal.Footer>
+    </Modal>
+  );
+}
+
 
 function Dashboard() {
   const [todolist, settodoList] = useState(toDos);
@@ -207,6 +253,9 @@ function Dashboard() {
   
   const [addMatchModalShow, setaddMatchModalShow] = React.useState(false);
   const [confirmMatchModalShow, setconfirmMatchModalShow] = React.useState(false);
+
+  const [joinMeetingShow, setjoinMeetingShow] = React.useState(false);
+  const [meetingParName, setMeetingParName] = React.useState(" ");
 
   return (
     <>
@@ -241,9 +290,8 @@ function Dashboard() {
                               You have an upcoming interview with {element.name} on {element.time}!
                               </div>
                               <div className="text-left">
-                              <Button variant="primary" className="btn-fill mr-5" size="sm">
-                          Join Meeting
-                          </Button>{' '}
+                                  <Button variant="primary" className="btn-fill mr-5" size="sm" onClick={() => { setjoinMeetingShow(true); setMeetingParName(element.name) }}>Join Meeting</Button>{' '}
+                                  <JoinMeetingModal name={meetingParName} show={joinMeetingShow} questionLink={service_link.question} chattingLink={service_link.chatting} IDELink={service_link.IDE} onHide={() => setjoinMeetingShow(false)}></JoinMeetingModal>
                           <Button variant="primary" className="mr-5" size="sm">Reschedule</Button>{' '}
                           <Button variant="outline-secondary" size="sm">View Profile</Button>
                               </div>
