@@ -284,6 +284,7 @@ class ToDoItem(models.Model):
     name = models.CharField(max_length=150, default='')
     type = models.CharField(max_length=1, choices=type_choices)
     time = models.DateTimeField(auto_now_add=True)
+    link = models.URLField(null=True)
     
 class HistoryItem(models.Model):
     '''
