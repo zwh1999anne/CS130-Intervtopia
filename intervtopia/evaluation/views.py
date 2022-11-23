@@ -4,27 +4,27 @@ from django.views import generic
 from django.http import HttpResponseRedirect
 # legacy import above
 from django.shortcuts import render
-from .serializers import ChoiceSerializer, EvalFormSerializer, QuestionSerializer, ResponseSerializer
-from .models import Choice, EvalForm, Question, Response
+from .serializers import EvalFormSerializer, QuestionSerializer
+from .models import EvalForm, Question
 from rest_framework import viewsets
 from rest_framework import permissions
 # Create your views here.
 
 
-class ChoiceViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows users to be viewed or edited.
-    """
-    queryset = Choice.objects.all().order_by('choice_value')
-    serializer_class = ChoiceSerializer
-    permission_classes = [permissions.IsAuthenticated]
+# class ChoiceViewSet(viewsets.ModelViewSet):
+#     """
+#     API endpoint that allows users to be viewed or edited.
+#     """
+#     queryset = Choice.objects.all().order_by('choice_value')
+#     serializer_class = ChoiceSerializer
+#     permission_classes = [permissions.IsAuthenticated]
 
 
 class EvalFormViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
     """
-    queryset = EvalForm.objects.all().order_by('name')
+    queryset = EvalForm.objects.all().order_by('time')
     serializer_class = EvalFormSerializer
     permission_classes = [permissions.IsAuthenticated]
 
@@ -33,18 +33,18 @@ class QuestionViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
     """
-    queryset = Question.objects.all().order_by('question_name')
+    queryset = Question.objects.all().order_by('question_ranking')
     serializer_class = QuestionSerializer
     permission_classes = [permissions.IsAuthenticated]
 
 
-class ResponseViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows users to be viewed or edited.
-    """
-    queryset = Response.objects.all().order_by('name')
-    serializer_class = ResponseSerializer
-    permission_classes = [permissions.IsAuthenticated]
+# class ResponseViewSet(viewsets.ModelViewSet):
+#     """
+#     API endpoint that allows users to be viewed or edited.
+#     """
+#     queryset = Response.objects.all().order_by('name')
+#     serializer_class = ResponseSerializer
+#     permission_classes = [permissions.IsAuthenticated]
 
 
 # legacy code before using restframework

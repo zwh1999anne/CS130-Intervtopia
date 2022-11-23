@@ -1,15 +1,16 @@
 from rest_framework import serializers
 from .models import CustomUser, ToDoItem, HistoryItem
 
-class PreferenceSerializer(serializers.HyperlinkedModelSerializer):
+class UserSerializer(serializers.HyperlinkedModelSerializer):
     target_companys = serializers.StringRelatedField(many=True)
     target_positions = serializers.StringRelatedField(many=True)
     preferred_languages = serializers.StringRelatedField(many=True)
     availability = serializers.StringRelatedField(many = True)
-
+    todo = serializers.HyperlinkedRelatedField(many=True,  view_name='todoitem-detail', read_only=True)
+    history = serializers.HyperlinkedRelatedField(many=True,  view_name='historyitem-detail', read_only=True)
+    evalform = serializers.HyperlinkedRelatedField(many=True, view_name='evalform-detail', read_only=True)
     class Meta:
         model = CustomUser
-        # fields = []
         fields = [
             'url', 
             'username', 
@@ -22,17 +23,20 @@ class PreferenceSerializer(serializers.HyperlinkedModelSerializer):
             'preferred_difficulty',
             'availability', 
             'preferred_role',
-            'rating'
+            'rating',
+            'todo',
+            'history',
+            'evalform'
         ]
 
 class ToDoSerializer(serializers.HyperlinkedModelSerializer):
-    owner = serializers.StringRelatedField()
+    owner = serializers.ReadOnlyField(source='owner.username')
     class Meta:
         model = ToDoItem
-        fields = ['url', 'owner', 'name', 'type', 'time']
+        fields = ['id', 'owner', 'name', 'type', 'time', 'link']
 
 class HistorySerializer(serializers.HyperlinkedModelSerializer):
-    owner = serializers.StringRelatedField()
+    owner = serializers.ReadOnlyField(source='owner.username')
     class Meta:
         model = HistoryItem
         fields = [
@@ -40,5 +44,5 @@ class HistorySerializer(serializers.HyperlinkedModelSerializer):
             'owner',
             'name',
             'time',
-            'evaluated'
+            'evaluated',
         ]
