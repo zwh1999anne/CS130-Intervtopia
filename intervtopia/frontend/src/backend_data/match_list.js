@@ -8,7 +8,7 @@ const match_info = {
     evaluation_score: "4.7"
 }
 
-export function matchConfirmed(matchName, matchDay, matchTime){
+export function matchConfirmed(match_info){
     return 0;
 }
 export function getMatchInfo(matchType){

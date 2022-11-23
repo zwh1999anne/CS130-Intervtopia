@@ -23,7 +23,10 @@ import { getMatchInfo, matchConfirmed } from "backend_data/match_list";
 import service_link from "backend_data/external_service_link";
 import { getEvalForm, evalConfirmed } from "backend_data/evaluation_form";
 
-var current_match = "random";
+let current_match = "random";
+let curr_info={id: "-1", name: " ", type: " ", time: " "}
+let curr_todo_id = toDos.length + 1;
+let curr_interview_id = interviews_list.length + 1;
 
 function AddFriendModal(props) {
   return (
@@ -96,6 +99,11 @@ function AddMatchModal(props){
 
 function ConfirmMatchModal(props){
   const match_info = getMatchInfo(current_match);
+  curr_info.name = match_info.name
+  curr_info.id = {...curr_todo_id}
+  curr_info.name = match_info.name
+  curr_info.type = "interview"
+  curr_info.time = match_info.available_day + " " + match_info.available_time
   return (
     <Modal
       {...props}
@@ -122,7 +130,7 @@ function ConfirmMatchModal(props){
         
       </Modal.Body>
       <Modal.Footer>
-      <Button variant="primary" className="btn-fill" onClick={() => {props.onHide(); matchConfirmed(match_info.name, match_info.available_day, match_info.available_time)}}>
+      <Button variant="primary" className="btn-fill" onClick={() => {props.confirmed(); matchConfirmed(match_info)}}>
             Confirm
           </Button>
         <Button variant="secondary" className="btn-fill" onClick={props.onHide}>Cancel</Button>
@@ -228,7 +236,7 @@ function JoinMeetingModal(props) {
         </Table>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="primary" className="btn-fill" onClick={props.onHide}>
+        <Button variant="primary" className="btn-fill" onClick={props.completed}>
           Meeting completed
         </Button>
         <Button variant="secondary" className="btn-fill" onClick={props.onHide}>Cancel</Button>
@@ -243,6 +251,16 @@ function Dashboard() {
 
   const deleteTodo = (id) => {
     return settodoList([...todolist.filter((element) => element.id !== id)]);
+  };
+
+  const addTodo = (item) => {
+    settodoList(todolist => [...todolist, item] );
+  };
+
+  const [interviewlist, setinterviewList] = useState(interviews_list);
+
+  const addinterview = (item) => {
+    setinterviewList(interviewlist => [...interviewlist, item] );
   };
 
   const [addFriendModalShow, setaddFriendModalShow] = React.useState(false);
@@ -291,7 +309,13 @@ function Dashboard() {
                               </div>
                               <div className="text-left">
                                   <Button variant="primary" className="btn-fill mr-5" size="sm" onClick={() => { setjoinMeetingShow(true); setMeetingParName(element.name) }}>Join Meeting</Button>{' '}
-                                  <JoinMeetingModal name={meetingParName} show={joinMeetingShow} questionLink={service_link.question} chattingLink={service_link.chatting} IDELink={service_link.IDE} onHide={() => setjoinMeetingShow(false)}></JoinMeetingModal>
+                                  <JoinMeetingModal name={meetingParName} show={joinMeetingShow} time = {element.time} 
+                                  questionLink={service_link.question} chattingLink={service_link.chatting} IDELink={service_link.IDE} 
+                                  onHide={() => setjoinMeetingShow(false)}
+                                  completed = {() => {deleteTodo(element.id); addTodo({id: {...curr_todo_id}, name: element.name, type: "evaluation", time: element.time}); 
+                                  addinterview({id: {...curr_interview_id}, name: element.name, time: element.time, evaluated: "No"}); 
+                                  setjoinMeetingShow(false); curr_todo_id += 1; curr_interview_id += 1}}>
+                                  </JoinMeetingModal>
                           <Button variant="primary" className="mr-5" size="sm">Reschedule</Button>{' '}
                           <Button variant="outline-secondary" size="sm">View Profile</Button>
                               </div>
@@ -306,7 +330,7 @@ function Dashboard() {
                                   className="btn-simple btn-link p-1"
                                   type="button"
                                   variant="danger"
-                                  onClick={() => deleteTodo(element.id)}
+                                  onClick={() => {deleteTodo(element.id)}}
                                 >
                                   <i className="fas fa-times"></i>
                                 </Button>
@@ -383,7 +407,9 @@ function Dashboard() {
               <AddMatchModal show={addMatchModalShow} 
               onHide={() => setaddMatchModalShow(false)} 
               confirmed={() => {setaddMatchModalShow(false); setconfirmMatchModalShow(true)}}></AddMatchModal>
-              <ConfirmMatchModal show={confirmMatchModalShow} onHide={() => setconfirmMatchModalShow(false)}></ConfirmMatchModal>
+              <ConfirmMatchModal show={confirmMatchModalShow}
+              onHide={() => setconfirmMatchModalShow(false)}
+              confirmed = {() => {setconfirmMatchModalShow(false); addTodo(curr_info);curr_todo_id += 1}} ></ConfirmMatchModal>
               </Card.Body>
             </Card>
           </Col>
@@ -405,7 +431,7 @@ function Dashboard() {
                   </thead>
                   <tbody>
                   {
-                    interviews_list.map((element) => {
+                    interviewlist.map((element) => {
                       return <tr key={element.id}>
                          <td>{element.name}</td>
                         <td>{element.time}</td>
