@@ -86,7 +86,7 @@ class Position(models.Model):
     def get(position: str):
         return Position.objects.filter(position_name=position)
 
-
+'''
 class Calendar(models.Model):
     ext_url = models.URLField()
 
@@ -114,7 +114,7 @@ class Calendar(models.Model):
     @staticmethod
     def get(calendar_url: str):
         return Calendar.objects.filter(ext_url=calendar_url)
-
+''' 
 
 class Availability(models.Model):
     day_choices = [
@@ -150,7 +150,6 @@ class CustomUser(AbstractUser):
     matching_choices = [('random', 'RandomMatching'), ('preference', 'PreferenceMatching')]
     matchingStrategy = models.CharField(max_length=20, choices=matching_choices, default='random')
     preferred_role = models.CharField(max_length=2, choices= role_choices, default='')
-    # history = models.JSONField(blank=True, null=True)
     rating = models.FloatField(default=0)
     
 
@@ -281,7 +280,7 @@ class ToDoItem(models.Model):
         ('I', 'Interview'), 
         ('E', 'Evaluation')
     ]
-    owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    owner = models.ForeignKey(CustomUser,  related_name='todo', on_delete=models.CASCADE)
     name = models.CharField(max_length=150, default='')
     type = models.CharField(max_length=1, choices=type_choices)
     time = models.DateTimeField(auto_now_add=True)
@@ -293,7 +292,7 @@ class HistoryItem(models.Model):
     time: "Nov 1st, 9: 00",
     evaluated: "No"
     '''
-    owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    owner = models.ForeignKey(CustomUser, related_name='history', on_delete=models.CASCADE)
     name = models.CharField(max_length=150, default='')
     time = models.DateTimeField(default=now)
     evaluated = models.BooleanField(default=False)
