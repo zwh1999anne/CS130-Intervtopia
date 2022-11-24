@@ -22,6 +22,7 @@ import interviews_list from "backend_data/interviews_list";
 import { getMatchInfo, matchConfirmed } from "backend_data/match_list";
 import service_link from "backend_data/external_service_link";
 import { getEvalForm, evalConfirmed } from "backend_data/evaluation_form";
+import default_preferences from "backend_data/default_preferences";
 
 let current_match = "random";
 let curr_info={id: "-1", name: " ", type: " ", time: " "}
@@ -53,6 +54,35 @@ function AddFriendModal(props) {
       <Modal.Footer>
       <Button variant="primary" className="btn-fill" onClick={props.onHide}>
             Send
+          </Button>
+        <Button variant="secondary" className="btn-fill" onClick={props.onHide}>Cancel</Button>
+      </Modal.Footer>
+    </Modal>
+  );
+}
+
+function LauchInterviewModal(props) {
+  return (
+    <Modal
+      {...props}
+      size="lg"
+    >
+      <Modal.Header closeButton>
+        <Modal.Title id="contained-modal-title-vcenter">
+          Sending Interview Invitation to {props.name}
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <p>
+          Please confirm if you want to interview with {props.name} at the following time:
+        </p>
+        <p>
+        {default_preferences.available_day}, {default_preferences.available_time}
+        </p>
+      </Modal.Body>
+      <Modal.Footer>
+      <Button variant="primary" className="btn-fill" onClick={props.onHide}>
+          Confirm
           </Button>
         <Button variant="secondary" className="btn-fill" onClick={props.onHide}>Cancel</Button>
       </Modal.Footer>
@@ -275,6 +305,10 @@ function Dashboard() {
   const [joinMeetingShow, setjoinMeetingShow] = React.useState(false);
   const [meetingParName, setMeetingParName] = React.useState(" ");
 
+  const [launchInterviewShow, setlaunchinterviewShow] = React.useState(false);
+  const [interviewName, setinterviewName] = React.useState(" ");
+
+
   return (
     <>
       <Container fluid>
@@ -437,9 +471,10 @@ function Dashboard() {
                         <td>{element.time}</td>
                         <td>
                         <div className="text-left">
-                        <Button variant="primary" className="btn-fill mr-3" size="sm">
+                        <Button variant="primary" className="btn-fill mr-3" size="sm" onClick={() => {setlaunchinterviewShow(true); setinterviewName(element.name)}}>
                         Interview Again
-                        </Button>{'     '}
+                        </Button>
+                        <LauchInterviewModal name={interviewName} show={launchInterviewShow} onHide={() => setlaunchinterviewShow(false)}></LauchInterviewModal>
                         <Button variant="primary" size="sm"  onClick={() => {setaddFriendModalShow(true); setFriendModalName(element.name)}}>Add Friend</Button>
                         <AddFriendModal name = {FriendModalName} show={addFriendModalShow} onHide={() => setaddFriendModalShow(false)}></AddFriendModal>
                         </div>

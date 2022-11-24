@@ -95,7 +95,7 @@ function Messages() {
                         <td>
                         <div className="text-left">
                         <Button variant="primary" className="btn-fill mr-3" size="sm">
-                        Read and Reply
+                        Reply
                         </Button>{'     '}
                         <Button variant="primary" size="sm" onClick={() => deleteMessage(element.id)}>Delete</Button>
                         </div>
