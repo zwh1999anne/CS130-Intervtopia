@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from datetime import datetime
 from django.utils.timezone import now
+import random
 # from interview.models import *
 
 
@@ -319,12 +320,18 @@ class MatchingStrategy:
 
 
 class RandomMatching(MatchingStrategy):
+    
     strategy_name = "Random Matching"
 
+    @staticmethod
     def getPair(self, user: CustomUser):
         '''
         TODO: implement the random matching algorithm
         '''
+        queryset = CustomUser.objects.all()
+        idx = random.randint(1, len(queryset))
+        pair = CustomUser.objects.get(pk = idx)
+        return pair
 
 
 class PreferenceMatching(MatchingStrategy):
@@ -334,3 +341,9 @@ class PreferenceMatching(MatchingStrategy):
         '''
         TODO: implement the perference matching algorithm
         '''
+
+class HistoryMatching(MatchingStrategy):
+    strategy_name = "History Matching"
+
+    def getPair(self, user: CustomUser):
+        return super().getPair(user)
