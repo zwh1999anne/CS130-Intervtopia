@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState }  from "react";
 
 // react-bootstrap components
 import {
@@ -10,12 +10,39 @@ import {
   Nav,
   Container,
   Row,
-  Col
+  Col,
+  Modal
 } from "react-bootstrap";
 
 import default_preferences from "backend_data/default_preferences";
 
+function UpdateConfirmModal(props) {
+  return (
+    <Modal
+      {...props}
+      size="lg"
+    >
+    <Modal.Header closeButton>
+        <Modal.Title id="contained-modal-title-vcenter">
+          Update Confirmation
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        Your preferences have been updated!
+      </Modal.Body>
+      <Modal.Footer>
+      <Button variant="primary" className="btn-fill mt-3" onClick={props.onHide}>
+            OK
+          </Button>
+      </Modal.Footer>
+    </Modal>
+  );
+}
+
 function Preferences() {
+
+  const [UpdateConfirmModalShow, setUpdateConfirmModalShow] = React.useState(false);
+
   return (
     <>
       <Container fluid>
@@ -202,12 +229,14 @@ function Preferences() {
                   </Row>
                   <Button
                     className="btn-fill pull-right mt-5"
-                    type="submit"
                     variant="primary"
+                    onClick={() => {setUpdateConfirmModalShow(true)}}
                   >
                     Update Preferences
                   </Button>
-                  <div className="clearfix"></div>
+                  <UpdateConfirmModal show={UpdateConfirmModalShow} 
+                          onHide={() => setUpdateConfirmModalShow(false)}></UpdateConfirmModal>
+                  
                 </Form>
               </Card.Body>
             </Card>

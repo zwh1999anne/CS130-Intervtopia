@@ -11,6 +11,7 @@ import {
   Container,
   Row,
   Col,
+  Modal,
   Form,
   OverlayTrigger,
   Tooltip,
@@ -18,12 +19,37 @@ import {
 
 import messages_list from "backend_data/messages_list";
 
+function ReplyMessageModal(props) {
+  return (
+    <Modal
+      {...props}
+      size="lg"
+    >
+    <Modal.Header closeButton>
+        <Modal.Title id="contained-modal-title-vcenter">
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+      </Modal.Body>
+      <Modal.Footer>
+      <Button variant="primary" className="btn-fill" onClick={props.onHide}>
+            Send
+          </Button>
+        <Button variant="secondary" className="btn-fill" onClick={props.onHide}>Cancel</Button>
+      </Modal.Footer>
+    </Modal>
+  );
+}
+
 function Messages() {
   const [messagelist, setmessageList] = useState(messages_list);
 
   const deleteMessage = (id) => {
   
   };
+
+  const [replyMessageModalShow, setreplyMessageModalShow] = React.useState(false);
+  const [MessageModalName, setMessageModalName] = React.useState(" ");
 
   return (
     <>
@@ -52,7 +78,7 @@ function Messages() {
                               </div>
                             </td>
                             <td>
-                            <Button variant="primary" className="btn-fill mr-5" size="sm">
+                            <Button variant="primary" className="btn-fill mr-5" size="sm" onClick={() => deleteMessage(element.id)}>
                           Accept
                           </Button>{' '}
                           <Button variant="primary" className="mr-5" size="sm" onClick={() => deleteMessage(element.id)}>Ignore</Button>
@@ -94,9 +120,11 @@ function Messages() {
                         <td>{element.time}</td>
                         <td>
                         <div className="text-left">
-                        <Button variant="primary" className="btn-fill mr-3" size="sm">
-                        Read and Reply
-                        </Button>{'     '}
+                        <Button variant="primary" className="btn-fill mr-3" size="sm"
+                        onClick={() => {setreplyMessageModalShow(true); setMessageModalName(element.name)}}>
+                        Reply
+                        </Button>
+                        <ReplyMessageModal name={MessageModalName} show={replyMessageModalShow} onHide={() => setreplyMessageModalShow(false)}></ReplyMessageModal>
                         <Button variant="primary" size="sm" onClick={() => deleteMessage(element.id)}>Delete</Button>
                         </div>
                         </td>

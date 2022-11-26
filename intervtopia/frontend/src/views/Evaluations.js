@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState }  from "react";
 
 // react-bootstrap components
 import {
@@ -12,12 +12,14 @@ import {
   Row,
   Col,
   Form,
+  Modal,
   OverlayTrigger,
   Tooltip,
 } from "react-bootstrap";
 
 import evaluation from "backend_data/evaluation_res";
 import interviews_list from "backend_data/interviews_list";
+import { getEvalForm, evalConfirmed } from "backend_data/evaluation_form";
 
 function RatingImage(props){
   if(props.value == 5){
@@ -56,7 +58,85 @@ function RatingImage(props){
 
 }
 
+function EvaluationModal(props){
+  const eval_questions = getEvalForm();
+  var res_dict = {};
+  return (
+    <Modal
+      {...props}
+      size="lg"
+    >
+      <Modal.Header closeButton>
+        <Modal.Title id="contained-modal-title-vcenter">
+          Please fill in the evaluation form for {props.name}
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+      <Table>
+        <tbody>
+          {
+          eval_questions.map((element) => {
+            if(element.type === "rating"){
+              res_dict[element.dimension] = 5;
+              return <tr key={element.dimension}>
+              <Form.Group>
+              <Form.Label>Please rate the {element.dimension}</Form.Label>
+              <Form.Select defaultValue={5}  className="form-control" onChange={(e) => {res_dict[element.dimension] = e.currentTarget.value;}}>
+                <option value={5}>5</option>
+                <option value={4}>4</option>
+                <option value={3}>3</option>
+                <option value={2}>2</option>
+                <option value={1}>1</option>
+              </Form.Select>
+              </Form.Group>
+              </tr>
+            }
+            else if(element.type === "text"){
+              res_dict[element.dimension] = "";
+              return <tr key={element.dimension}>
+              <Form.Group className="mb-3">
+              <Form.Label>(Optional) Please leave a comment for {props.name}</Form.Label>
+              <Form.Control
+              defaultValue=""
+              placeholder="Enter your comment here."
+              as="textarea" rows={3} 
+              onChange={(e) => {res_dict[element.dimension] = e.currentTarget.value}}></Form.Control>
+              </Form.Group>
+              </tr>
+            }
+          } )
+        }
+         </tbody>
+      </Table>
+      </Modal.Body>
+      <Modal.Footer>
+      <Button variant="primary" className="btn-fill" onClick={() => {props.submitted();evalConfirmed(props.name, res_dict)}}>
+           Submit
+      </Button>
+      <Button variant="secondary" className="btn-fill" onClick={props.onHide}>Cancel</Button>
+      </Modal.Footer>
+    </Modal>
+  );
+}
+
 function Evaluations() {
+  const [interviewlist, setinterviewList] = useState(interviews_list);
+
+  const [evalModalShow, setevalModalShow] = React.useState(false);
+  const [EvalModalName, setEvalModalName] = React.useState(" ");
+
+  const updateEvaluationsArray = (name) => {
+    setinterviewList(current =>
+      current.map(obj => {
+        if (obj.name === name) {
+          return {...obj, evaluated:"Yes"};
+        }
+
+        return obj;
+      }),
+    );
+  };
+
   return (
     <>
       <Container fluid>
@@ -134,16 +214,19 @@ function Evaluations() {
                   </thead>
                   <tbody>
                   {
-                    interviews_list.map((element, index) => {
+                    interviewlist.map((element) => {
                       if(element.evaluated === "No"){
-                        return <tr key={index}>
+                        return <tr key={element.id}>
                          <td>{element.name}</td>
                         <td>{element.time}</td>
                         <td>
                         <div className="text-left">
-                        <Button variant="primary" className="btn-fill mr-3" size="sm">
+                        <Button variant="primary" className="btn-fill mr-3" size="sm" 
+                        onClick={() => {setevalModalShow(true); setEvalModalName(element.name)}}>
                         Evaluate
                         </Button>
+                        <EvaluationModal name = {EvalModalName} show={evalModalShow} onHide={() => setevalModalShow(false)}
+                          submitted={() => {setevalModalShow(false); updateEvaluationsArray(EvalModalName)}}></EvaluationModal>
                         </div>
                         </td>
                         </tr>;
