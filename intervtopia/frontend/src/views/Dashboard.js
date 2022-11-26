@@ -250,10 +250,10 @@ function JoinMeetingModal(props) {
             </tr>
           </thead>
           <tbody>
-            {/* <tr>
+            <tr>
               <td>Question</td>
               <td><a href={props.questionLink}  target="_blank">{props.questionLink}</a></td>
-            </tr> */}
+            </tr>
             <tr>
               <td>Chatting</td>
               <td><a href={props.chattingLink}  target="_blank">{props.chattingLink}</a></td>
