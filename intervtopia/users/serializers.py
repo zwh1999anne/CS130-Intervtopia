@@ -46,3 +46,42 @@ class HistorySerializer(serializers.HyperlinkedModelSerializer):
             'time',
             'evaluated',
         ]
+
+class MatchingSerializer():
+    '''
+    name: "Wendy Y",
+    first_language: "JavaScipt",
+    second_language: "Python",
+    desired_difficulty: "hard",
+    available_day: "Tuesday",
+    available_time: "10:00 - 11:00 A.M.",
+    evaluation_score: "4.7"
+    '''
+
+    def __init__(self, user: CustomUser) -> None:
+        self.user = user
+    
+    def serialize(self):
+        if self.user is not None:
+            difficulty_lut = {
+                'E': 'easy',
+                'M': 'medium',
+                'H': 'hard'
+            }
+
+            name = self.user.username
+            languages = [l.lang_name for l in self.user.preferred_languages.all()]
+            difficulty = self.user.preferred_difficulty
+            avaliability = [(a.day, a.start_time.strftime("%H:%M"), a.end_time.strftime("%H:%M")) for a in self.user.availability.all()]
+            score = self.user.rating
+            obj = {
+                'name': name,
+                'languages': languages,
+                'difficulty': difficulty_lut[difficulty],
+                'availability': avaliability,
+                'evaluation_score': score
+            }
+            return obj
+        else:
+            return None
+        
