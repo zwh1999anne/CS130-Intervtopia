@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from datetime import datetime
 from django.utils.timezone import now
+import math
+import random
 # from interview.models import *
 
 
@@ -319,18 +321,112 @@ class MatchingStrategy:
 
 
 class RandomMatching(MatchingStrategy):
+    
     strategy_name = "Random Matching"
 
     def getPair(self, user: CustomUser):
-        '''
-        TODO: implement the random matching algorithm
-        '''
+        queryset = CustomUser.objects.all()
+        idx = random.randint(1, len(queryset))
+        pair = CustomUser.objects.get(pk = idx)
+        print(pair.username)
+        return pair
 
 
 class PreferenceMatching(MatchingStrategy):
     strategy_name = "Preference Matching"
+    feature_dict = {}
+
+    def _get_feature_dict(self):
+        '''
+        Each feature vector is formatted as below:
+        [
+            language_1,
+            language_2
+            company,
+            position,
+            difficulty,
+            role,
+            availability_1,
+            availability_2
+        ]
+        '''
+        difficulty_lut = {
+            'E':0,
+            'M':1,
+            'H':2
+        }
+        role_lut = {
+            'B': 0,
+            'ER': 1,
+            'EE': -1
+        }
+        queryset = CustomUser.objects.all()
+        feature_vecs = {}
+        for u in queryset:
+            vec = []
+            lang = u.preferred_languages.all()
+            if len(lang) == 0:
+                vec += [-1,-1]
+            elif len(lang) == 1:
+                vec += [lang[0].pk,-1]
+            else:
+                vec += [lang[0].pk, lang[1].pk]
+
+            comp = u.target_companys.all()
+            if len(comp) == 0:
+                vec.append(-1)
+            else:
+                vec.append(comp[0].pk)
+            
+            pos = u.target_positions.all()
+            if len(pos) == 0:
+                vec.append(-1)
+            else:
+                vec.append(pos[0].pk)
+
+            if u.preferred_difficulty == '':
+                vec.append(-1)
+            else:
+                vec.append(difficulty_lut[u.preferred_difficulty])
+
+            role = 0 - role_lut[u.preferred_role] 
+            vec.append(role)
+
+            avai = u.availability.all()
+            if len(avai) == 0:
+                vec += [-1, -1]
+            elif len(avai) == 1:
+                vec += [avai[0].pk, -1]
+            else:
+                vec += [avai[0].pk, avai[1].pk]
+
+            assert(len(vec) == 8)
+            feature_vecs[u.username] = vec
+        self.feature_dict = feature_vecs
 
     def getPair(self, user: CustomUser):
         '''
-        TODO: implement the perference matching algorithm
+        Find matching based on feature vector
         '''
+        self._get_feature_dict()
+        print(self.feature_dict)
+        usr_vec = self.feature_dict[user.username]
+        score_dict = {}
+        for k, v in self.feature_dict.items():
+            if k != user.username:
+                score_dict[k] = math.dist(v, usr_vec)
+        sorted_score_dict = sorted(score_dict)
+        return CustomUser.objects.get(username = sorted_score_dict[0])
+        
+
+class HistoryMatching(MatchingStrategy):
+    strategy_name = "History Matching"
+
+    def getPair(self, user: CustomUser):
+        history = HistoryItem.objects.filter(owner__username = user.username)
+        if len(history) == 0:
+            return None # If the user has no history, return None. The frontend should call another matching strategy
+        else:
+            idx = random.randint(0, len(history)-1)
+            pair = CustomUser.objects.get(username = history[idx].name)
+            return pair

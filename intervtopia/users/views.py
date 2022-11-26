@@ -1,8 +1,10 @@
 from django.shortcuts import render
-from .serializers import UserSerializer, ToDoSerializer, HistorySerializer
-from .models import CustomUser, ToDoItem, HistoryItem
+from .serializers import UserSerializer, ToDoSerializer, HistorySerializer, MatchingSerializer
+from .models import CustomUser, ToDoItem, HistoryItem, RandomMatching, PreferenceMatching, HistoryMatching
 from rest_framework import viewsets
 from rest_framework import permissions
+from django.http import JsonResponse
+from rest_framework.decorators import action
 # Create your views here.
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -13,6 +15,7 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+
 class ToDoViewSet(viewsets.ModelViewSet):
     queryset = ToDoItem.objects.all().order_by('time')
     serializer_class = ToDoSerializer
@@ -22,3 +25,22 @@ class HistoryViewSet(viewsets.ModelViewSet):
     queryset = HistoryItem.objects.all().order_by('time')
     serializer_class = HistorySerializer
     permission_classes = [permissions.IsAuthenticated]
+
+def match(request):
+    usr = CustomUser.objects.get(username = request.GET['user'])
+    # print(request.GET['type'])
+    if request.GET['type'] == "random":
+        # Do random matching
+        rand_match = RandomMatching()
+        pair = rand_match.getPair(usr)
+    elif request.GET['type'] == "preference":
+        # Do preference matching
+        pref_match = PreferenceMatching()
+        pair = pref_match.getPair(usr)
+    else:
+        # Do history matching
+        hist_match = HistoryMatching()
+        pair = hist_match.getPair(usr)
+    serializer = MatchingSerializer(pair)
+    data = serializer.serialize()
+    return JsonResponse(data, safe=False)

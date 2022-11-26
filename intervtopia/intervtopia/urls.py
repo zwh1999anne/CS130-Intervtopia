@@ -38,4 +38,9 @@ router.register(r'eval-form', EvalFormViewSet)
 router.register(r'eval-form-question', QuestionViewSet)
 # router.register(r'eval-form-response', ResponseViewSet)
 
-urlpatterns = [path('admin/', admin.site.urls), path('', include(router.urls)), path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))]
+urlpatterns = [
+        path('admin/', admin.site.urls), 
+        path('', include(router.urls)), 
+        path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+        path('matching/', views.match, name='matching')
+    ]
