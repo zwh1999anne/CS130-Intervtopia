@@ -323,7 +323,6 @@ class RandomMatching(MatchingStrategy):
     
     strategy_name = "Random Matching"
 
-    @staticmethod
     def getPair(self, user: CustomUser):
         '''
         TODO: implement the random matching algorithm
@@ -331,6 +330,7 @@ class RandomMatching(MatchingStrategy):
         queryset = CustomUser.objects.all()
         idx = random.randint(1, len(queryset))
         pair = CustomUser.objects.get(pk = idx)
+        print(pair.username)
         return pair
 
 

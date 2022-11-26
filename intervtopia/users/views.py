@@ -4,6 +4,7 @@ from .models import CustomUser, ToDoItem, HistoryItem, RandomMatching
 from rest_framework import viewsets
 from rest_framework import permissions
 from django.http import JsonResponse
+from rest_framework.decorators import action
 # Create your views here.
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -13,6 +14,7 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
+
 
 class ToDoViewSet(viewsets.ModelViewSet):
     queryset = ToDoItem.objects.all().order_by('time')
@@ -25,15 +27,19 @@ class HistoryViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
 def match(request):
-    if request.type == "Random":
-        # Do random matching
-        pair = RandomMatching.getPair()
-        serialized_data = MatchingSerializer(pair)
+        # print(request.GET['type'])
+        if request.GET['type'] == "random":
+            # Do random matching
+            rand_match = RandomMatching()
+            pair = rand_match.getPair(CustomUser())
+            serializer = MatchingSerializer(pair)
+            data = serializer.serialize()
+            return JsonResponse(data, safe=False)
 
-
-    elif request.type == "Preference":
-        # Do preference matching
-        pass
-    else:
-        # Do history matching
-        pass
+        elif request.GET['type'] == "preference":
+            # Do preference matching
+            
+            pass
+        else:
+            # Do history matching
+            pass
