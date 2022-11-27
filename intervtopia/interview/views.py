@@ -77,7 +77,8 @@ def complete(request):
         if todo.type == 'I':
             todo.type = 'E'
             todo.save()
-            serializer = ToDoSerializer(todo, context={'request': request})
+        serializer = ToDoSerializer(todo, context={'request': request})
+        
         # elif todo.type == 'E':
         #     hist = HistoryItem.objects.create(
         #         owner = CustomUser.objects.get(username = todo.owner.username),
