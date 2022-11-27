@@ -26,7 +26,7 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
 from users import views
-from evaluation.views import EvalFormViewSet, QuestionViewSet
+from evaluation.views import EvalFormViewSet, QuestionViewSet, evaluate
 from interview.views import InterviewViewSet, confirm, complete, join_meeting
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
@@ -45,5 +45,6 @@ urlpatterns = [
         path('confirm/', confirm, name='confirm'),
         path('matching/', views.match, name='matching'),
         path('complete/', complete, name = 'complete'),
-        path('join/', join_meeting, name = 'join')
+        path('join/', join_meeting, name = 'join'),
+        path('evaluate/', evaluate, name = 'evaluate')
     ]

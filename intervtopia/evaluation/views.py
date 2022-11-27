@@ -1,11 +1,13 @@
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, JsonResponse
 from django.urls import reverse
 from django.views import generic
 from django.http import HttpResponseRedirect
 # legacy import above
+from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
 from .serializers import EvalFormSerializer, QuestionSerializer
 from .models import EvalForm, Question
+from users.models import ToDoItem
 from rest_framework import viewsets
 from rest_framework import permissions
 # Create your views here.
@@ -37,6 +39,51 @@ class QuestionViewSet(viewsets.ModelViewSet):
     serializer_class = QuestionSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+
+@csrf_exempt
+def evaluate(request):
+    if request.method == 'GET':
+        id = request.GET['todo']
+        todo = ToDoItem.objects.get(pk = id)
+        assert(todo.type == 'E')
+        role_lut = {
+            'ER': 'interviewer',
+            'EE': 'interviewee'
+        }
+        evalform = EvalForm.objects.create(
+            name = todo.owner.username + '\'s evaluation to ' + todo.name + ' as a '+ role_lut[todo.role],
+            targer_user = todo.owner,
+            target_role = todo.role,
+            comments = ""
+        )
+        todo.link = reverse('evalform-detail', args=[evalform.pk])
+        # evalform.targer_user = todo.owner
+        # evalform.save()
+        if todo.role == 'ER':
+            question_list = [
+                "How was the interviewee's problem-solving skill?",
+                "How was the interviewee's communication?",
+                "How was the interviewee's coding skill?",
+                "How was the interview over all?"
+            ]
+            
+        elif todo.role == 'EE':
+            question_list = [
+                "How was the interviewer's description of problem?",
+                "How was the interviewer's ability to create follow up questions?",
+                "How was the interviewer's feedback?",
+                "How was the interview over all?"
+            ]
+        for i in range(len(question_list)):
+            Question.objects.create(
+                question_text = question_list[i],
+                target = 'ER',
+                question_ranking = i,
+                score = 0,
+                evalform = evalform
+            )
+        serializer = EvalFormSerializer(evalform, context={'request': request})
+        return JsonResponse(serializer.data, safe = False)
 
 # class ResponseViewSet(viewsets.ModelViewSet):
 #     """
