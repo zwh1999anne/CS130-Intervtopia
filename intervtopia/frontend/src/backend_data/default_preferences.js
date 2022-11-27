@@ -20,19 +20,30 @@ export const current_user_id = 2;
 
 export function getPreferenceInfo(user_id){
    /*const [pdata, setPdata] = React.useState({});
-    useEffect(() => {getUserPreference();}, []);
+    useEffect(() => {getUserPreference();}, []);*/
 
+    let session_url = "http://127.0.0.1:8000/users/1/"
     const getUserPreference = async () => {
-      const { data } = await axios.get(`/users/2/`);
+      const { data } = await axios.get(session_url, {}, {
+        proxy: {
+            protocol: 'http',
+            host: '127.0.0.1',
+            // hostname: '127.0.0.1' // Takes precedence over 'host' if both are defined
+            port: 8000,
+            auth: {
+              username: 'haofan',
+              password: 'asd70asd'
+            }
+          },
+      });
       console.log(data)
-      axios.get("/users/2/")
-      .then((res) => {setPdata(res.data)})
-      .catch((err) => console.log(err));
-    }*/
+    }
 
-    axios.get("http://127.0.0.1:8000/users/2/")
+    getUserPreference();
+
+    /* axios.get("http://127.0.0.1:8000/users/2/")
       .then((res) => {console.log(res)})
-      .catch((err) => console.log(err));
+      .catch((err) => console.log(err)); */
 
     /* if(Object.keys(pdata).length !== 0){
         return processPreferenceInfo(pdata);
