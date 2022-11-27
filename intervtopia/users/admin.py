@@ -8,8 +8,11 @@ class TodoAdmin(admin.ModelAdmin):
 class HistoryAdmin(admin.ModelAdmin):
     list_display = ('owner', 'name', 'time', 'evaluated')
 
+class LanguageAdmin(admin.ModelAdmin):
+    list_display = ('pk', "lang_name")
+
 admin.site.register(CustomUser)
-admin.site.register(Language)
+admin.site.register(Language, LanguageAdmin)
 admin.site.register(Company)
 admin.site.register(Position)
 admin.site.register(Availability)
