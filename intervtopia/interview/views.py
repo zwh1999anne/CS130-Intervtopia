@@ -78,13 +78,10 @@ def complete(request):
             todo.type = 'E'
             todo.save()
         serializer = ToDoSerializer(todo, context={'request': request})
-        
-        # elif todo.type == 'E':
-        #     hist = HistoryItem.objects.create(
-        #         owner = CustomUser.objects.get(username = todo.owner.username),
-        #         name = todo.name,
-        #         evaluated = True
-        #     )
-        #     todo.delete()
-        #     serializer = UserSerializer(CustomUser.objects.get(username = hist.owner.username), context={'request': request})
+        # Create a history item
+        HistoryItem.objects.create(
+            owner = CustomUser.objects.get(username = todo.owner.username),
+            name = todo.name,
+            evaluated = False
+        )
         return JsonResponse(serializer.data, safe=False)
