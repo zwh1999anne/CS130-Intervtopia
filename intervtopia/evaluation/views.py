@@ -1,13 +1,14 @@
-from django.http import HttpResponse, Http404
+from django.http import JsonResponse, HttpResponse
 from django.urls import reverse
-from django.views import generic
-from django.http import HttpResponseRedirect
 # legacy import above
+from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
 from .serializers import EvalFormSerializer, QuestionSerializer
 from .models import EvalForm, Question
+from users.models import ToDoItem
 from rest_framework import viewsets
 from rest_framework import permissions
+from rest_framework.parsers import JSONParser
 # Create your views here.
 
 
@@ -38,6 +39,72 @@ class QuestionViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
 
+@csrf_exempt
+def evaluate(request):
+    if request.method == 'GET':
+        id = request.GET['todo']
+        todo = ToDoItem.objects.get(pk = id)
+        assert(todo.type == 'E')
+        role_lut = {
+            'ER': 'interviewer',
+            'EE': 'interviewee'
+        }
+        evalform = EvalForm.objects.create(
+            name = todo.owner.username + '\'s evaluation to ' + todo.name + ' as a '+ role_lut[todo.role],
+            targer_user = todo.owner,
+            target_role = todo.role,
+            comments = ""
+        )
+        todo.link = reverse('evalform-detail', args=[evalform.pk])
+        # evalform.targer_user = todo.owner
+        # evalform.save()
+        if todo.role == 'ER':
+            question_list = [
+                "How was the interviewee's problem-solving skill?",
+                "How was the interviewee's communication?",
+                "How was the interviewee's coding skill?",
+                "How was the interview over all?"
+            ]
+            
+        elif todo.role == 'EE':
+            question_list = [
+                "How was the interviewer's description of problem?",
+                "How was the interviewer's ability to create follow up questions?",
+                "How was the interviewer's feedback?",
+                "How was the interview over all?"
+            ]
+        for i in range(len(question_list)):
+            Question.objects.create(
+                question_text = question_list[i],
+                target = 'ER',
+                question_ranking = i,
+                score = 0,
+                evalform = evalform
+            )
+        serializer = EvalFormSerializer(evalform, context={'request': request})
+        return JsonResponse(serializer.data, safe = False)
+    
+@csrf_exempt
+def submit(request):
+    if request.method == 'POST':
+        data = JSONParser().parse(request)
+        form_id = data['form']
+        question_data = data['questions']
+        compressed_question_data = {}
+        for q in question_data:
+            compressed_question_data[q['id']] = q['score']
+        comments = data['comments']
+        form = EvalForm.objects.get(pk = form_id)
+        qs = form.questions.all()
+        for q in qs:
+            if q.pk in compressed_question_data.keys():
+                q.score = compressed_question_data[q.pk]
+                q.save()
+        form.comments = comments
+        form.save()
+        serializer = EvalFormSerializer(form, context={'request': request})
+    return JsonResponse(serializer.data, safe = False)
+
 # class ResponseViewSet(viewsets.ModelViewSet):
 #     """
 #     API endpoint that allows users to be viewed or edited.
@@ -50,38 +117,38 @@ class QuestionViewSet(viewsets.ModelViewSet):
 # legacy code before using restframework
 
 
-def index(request):
-    return HttpResponse("Hello, world. You're at the evaluation forms")
+# def index(request):
+#     return HttpResponse("Hello, world. You're at the evaluation forms")
 
 
-def interviewer(request):
-    try:
-        question_list = Question.objects.filter(target__gte=0)
-        question_list = question_list.order_by('question_ranking')
+# def interviewer(request):
+#     try:
+#         question_list = Question.objects.filter(target__gte=0)
+#         question_list = question_list.order_by('question_ranking')
 
-        context = {'question_list': question_list}
-    except Question.DoesNotExist:
-        raise Http404('Question does not exist')
-    return render(request, 'evaluation/evalform.html', context)
-
-
-def interviewee(request):
-    try:
-        question_list = Question.objects.filter(target__lte=0)
-        question_list = question_list.order_by('question_ranking')
-
-        context = {'question_list': question_list}
-    except:
-        raise Http404('Question does not exist')
-    return render(request, 'evaluation/evalform.html', context)
+#         context = {'question_list': question_list}
+#     except Question.DoesNotExist:
+#         raise Http404('Question does not exist')
+#     return render(request, 'evaluation/evalform.html', context)
 
 
-def submit(request):
-    # Handle the POST data
-    EvalForm.update(request)
-    return HttpResponse("Thank you for submitting your response!")
+# def interviewee(request):
+#     try:
+#         question_list = Question.objects.filter(target__lte=0)
+#         question_list = question_list.order_by('question_ranking')
+
+#         context = {'question_list': question_list}
+#     except:
+#         raise Http404('Question does not exist')
+#     return render(request, 'evaluation/evalform.html', context)
 
 
-def results(request):
-    response = "You're looking at the results of evaluation"
-    return HttpResponse(response)
+# def submit(request):
+#     # Handle the POST data
+#     EvalForm.update(request)
+#     return HttpResponse("Thank you for submitting your response!")
+
+
+# def results(request):
+#     response = "You're looking at the results of evaluation"
+#     return HttpResponse(response)
