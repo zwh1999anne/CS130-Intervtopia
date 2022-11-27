@@ -22,20 +22,20 @@ class Interviewee(models.Model):
 
 class Problem(models.Model):
     difficulty_choices = [('E', 'Easy'), ('M', 'Medium'), ('H', 'Hard'), ('', 'Select a difficulty')]
-    problem_name = models.CharField(max_length=20)
-    problem_id = models.IntegerField()
-    problem_url = models.URLField()
-    problem_statement = models.TextField()
-    problem_difficulty = models.CharField(max_length=1, choices=difficulty_choices)
+    name = models.CharField(max_length=150)
+    url = models.URLField()
+    difficulty = models.CharField(max_length=1, choices=difficulty_choices)
 
     def __str__(self) -> str:
-        return self.problem_name
+        return self.name
 
 
 class Interview(models.Model):
-    name = models.CharField(max_length=20, default='')
-    viewER = models.ForeignKey(Interviewer, on_delete=models.CASCADE)
-    viewEE = models.ForeignKey(Interviewee, on_delete=models.CASCADE)
+    # name = models.CharField(max_length=150, default='')
+    viewER = models.ForeignKey(CustomUser, related_name = 'viewer', on_delete=models.CASCADE)
+    viewEE = models.ForeignKey(CustomUser, related_name = 'viewee', on_delete=models.CASCADE)
     problems = models.ManyToManyField(Problem)
     date_and_time = models.DateTimeField()
     room_link = models.URLField()
+    ide_link = models.URLField(null=True)
+

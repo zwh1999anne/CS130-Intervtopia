@@ -27,12 +27,12 @@ from django.urls import path, include
 from rest_framework import routers
 from users import views
 from evaluation.views import EvalFormViewSet, QuestionViewSet
-
+from interview.views import InterviewViewSet, confirm, complete
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
 router.register(r'todo', views.ToDoViewSet)
 router.register(r'history', views.HistoryViewSet)
-
+router.register(r'interview', InterviewViewSet)
 # router.register(r'eval-form-choice', ChoiceViewSet)
 router.register(r'eval-form', EvalFormViewSet)
 router.register(r'eval-form-question', QuestionViewSet)
@@ -42,5 +42,7 @@ urlpatterns = [
         path('admin/', admin.site.urls), 
         path('', include(router.urls)), 
         path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-        path('matching/', views.match, name='matching')
+        path('confirm/', confirm, name='confirm'),
+        path('matching/', views.match, name='matching'),
+        path('complete/', complete, name = 'complete')
     ]
