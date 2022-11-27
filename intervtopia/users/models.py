@@ -282,9 +282,14 @@ class ToDoItem(models.Model):
         ('I', 'Interview'), 
         ('E', 'Evaluation')
     ]
+    role_choices = [
+        ('ER', 'Interviewer'),
+        ('EE', 'Interviewee')
+    ]
     owner = models.ForeignKey(CustomUser,  related_name='todo', on_delete=models.CASCADE)
     name = models.CharField(max_length=150, default='')
     type = models.CharField(max_length=1, choices=type_choices)
+    role = models.CharField(max_length=2, choices=role_choices, null=True)
     time = models.DateTimeField(auto_now_add=True)
     link = models.URLField(null=True)
     
@@ -295,9 +300,14 @@ class HistoryItem(models.Model):
     time: "Nov 1st, 9: 00",
     evaluated: "No"
     '''
+    role_choices = [
+        ('ER', 'Interviewer'),
+        ('EE', 'Interviewee')
+    ]
     owner = models.ForeignKey(CustomUser, related_name='history', on_delete=models.CASCADE)
     name = models.CharField(max_length=150, default='')
     time = models.DateTimeField(default=now)
+    role = models.CharField(max_length=2, choices=role_choices, null=True)
     evaluated = models.BooleanField(default=False)
 
 
