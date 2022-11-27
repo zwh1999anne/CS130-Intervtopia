@@ -26,8 +26,8 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
 from users import views
-from evaluation.views import EvalFormViewSet, QuestionViewSet
-from interview.views import InterviewViewSet, confirm, complete
+from evaluation.views import EvalFormViewSet, QuestionViewSet, evaluate, submit
+from interview.views import InterviewViewSet, confirm, complete, join_meeting
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
 router.register(r'todo', views.ToDoViewSet)
@@ -44,5 +44,8 @@ urlpatterns = [
         path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
         path('confirm/', confirm, name='confirm'),
         path('matching/', views.match, name='matching'),
-        path('complete/', complete, name = 'complete')
+        path('complete/', complete, name = 'complete'),
+        path('join/', join_meeting, name = 'join'),
+        path('evaluate/', evaluate, name = 'evaluate'),
+        path('submit/', submit, name='submit')
     ]

@@ -50,20 +50,26 @@ def confirm(request):
         )
         interview.save()
         interview.problems.add(prob)
-        serializer = InterviewSerializer(interview)
+        
         # Update Todo List
-        ToDoItem.objects.create(
+        todo_viewer = ToDoItem.objects.create(
                 owner = CustomUser.objects.get(username = data['viewer']),
                 name = data['viewee'],
+                role = 'ER',
                 type = 'I',
                 link = reverse('interview-detail', args=[interview.pk], request=request)             # link to the interview object
             )
-        ToDoItem.objects.create(
+        todo_viewee = ToDoItem.objects.create(
                 owner = CustomUser.objects.get(username = data['viewee']),
                 name = data['viewer'],
+                role = 'EE',
                 type = 'I',
                 link = reverse('interview-detail', args=[interview.pk], request=request)             # link to the interview object
             )
+        if data['username'] == data['viewer']:
+            serializer = ToDoSerializer(todo_viewer)
+        elif data['username'] == data['viewee']:
+            serializer = ToDoSerializer(todo_viewee)
         return JsonResponse(serializer.data, safe=False)
     else:
         return HttpResponseNotFound
@@ -82,6 +88,17 @@ def complete(request):
         HistoryItem.objects.create(
             owner = CustomUser.objects.get(username = todo.owner.username),
             name = todo.name,
+            role = todo.role,
             evaluated = False
         )
+        return JsonResponse(serializer.data, safe=False)
+
+@csrf_exempt
+def join_meeting(request):
+    if request.method == 'GET':
+        id = request.GET['todo']
+        todo = ToDoItem.objects.get(pk = id)
+        interview_id = int(str(todo.link).split('/')[-2])
+        interview = Interview.objects.get(pk = interview_id)
+        serializer = InterviewSerializer(interview)
         return JsonResponse(serializer.data, safe=False)
