@@ -26,6 +26,7 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
 from users import views
+from friend_and_message.views import FriendshipViewSet
 from evaluation.views import EvalFormViewSet, QuestionViewSet
 
 router = routers.DefaultRouter()
@@ -34,9 +35,11 @@ router.register(r'todo', views.ToDoViewSet)
 router.register(r'history', views.HistoryViewSet)
 
 # router.register(r'eval-form-choice', ChoiceViewSet)
+# router.register(r'eval-form-response', ResponseViewSet)
+
 router.register(r'eval-form', EvalFormViewSet)
 router.register(r'eval-form-question', QuestionViewSet)
-# router.register(r'eval-form-response', ResponseViewSet)
+router.register(r'friend-and-message', FriendshipViewSet)
 
 urlpatterns = [
         path('admin/', admin.site.urls), 

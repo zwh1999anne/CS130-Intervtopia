@@ -1,17 +1,15 @@
 from django.db import models
 from datetime import datetime
 from django.utils.timezone import now
-from users.models import *
+from users.models import CustomUser
 
 
 class Friendship(models.Model):
-    question_text = models.CharField(max_length=200)
-    pub_date = models.DateTimeField('date published')
-    def __str__(self) -> str:
-        return self.question_text
+    sender = models.ForeignKey(CustomUser, related_name = 'sender', on_delete=models.CASCADE)
+    receiver = models.ForeignKey(CustomUser, related_name = 'receiver', on_delete=models.CASCADE)
 
-    #user1 = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    #user2 = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+class Message(models.Model):
+    friendship = models.ForeignKey(Friendship, on_delete=models.CASCADE)
+    message_text = models.CharField(max_length=200)
+    time = models.DateTimeField(default=now)
 
-    #def __str__(self) -> str:
-    #    return self.user1.username + "&" + self.user2.username
