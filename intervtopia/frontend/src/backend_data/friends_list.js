@@ -2,7 +2,7 @@ const friends = [
     {
       id:"1",
       name: "Nick C",
-      message: "Hi Hesper, I have a recent update: I got the offer from my dream company! Thank you for helping me practice interview."
+      message: "Hi Haofan, I have a recent update: I got the offer from my dream company! Thank you for helping me practice interview."
     },
     {
       id:"2",
@@ -12,7 +12,12 @@ const friends = [
     {
        id:"3",
        name: "Alicia W",
-       message: "Dear Hesper, how are things going?"
+       message: "Dear Haofan, how are things going?"
+    },
+    {
+      id:"4",
+      name: "Wendy Y",
+      message: "Hi Haofan, It's nice to interview with you!"
     }
   ];
 

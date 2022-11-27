@@ -22,12 +22,13 @@ import interviews_list from "backend_data/interviews_list";
 import { getMatchInfo, matchConfirmed } from "backend_data/match_list";
 import service_link from "backend_data/external_service_link";
 import { getEvalForm, evalConfirmed } from "backend_data/evaluation_form";
-import default_preferences from "backend_data/default_preferences";
+import {getPreferenceInfo, current_user_id} from "backend_data/default_preferences";
 
 let current_match = "random";
 let curr_info={id: "-1", name: " ", type: " ", time: " "}
 let curr_todo_id = toDos.length + 1;
 let curr_interview_id = interviews_list.length + 1;
+const default_preferences = getPreferenceInfo(current_user_id);
 
 function AddFriendModal(props) {
   return (

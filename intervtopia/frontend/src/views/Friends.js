@@ -19,9 +19,10 @@ import {
 
 import invitations from "backend_data/inivitation_list";
 import friends from "backend_data/friends_list";
-import default_preferences from "backend_data/default_preferences";
+import {getPreferenceInfo, current_user_id} from "backend_data/default_preferences";
 
 let curr_friend_id = friends.length + 1;
+const default_preferences = getPreferenceInfo(current_user_id);
 
 function SendMessageModal(props) {
   return (
