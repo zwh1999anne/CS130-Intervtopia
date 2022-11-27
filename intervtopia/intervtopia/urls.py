@@ -27,7 +27,7 @@ from django.urls import path, include
 from rest_framework import routers
 from users import views
 from evaluation.views import EvalFormViewSet, QuestionViewSet
-from interview.views import InterviewViewSet
+from interview.views import InterviewViewSet, confirm
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
 router.register(r'todo', views.ToDoViewSet)
@@ -38,4 +38,9 @@ router.register(r'eval-form', EvalFormViewSet)
 router.register(r'eval-form-question', QuestionViewSet)
 # router.register(r'eval-form-response', ResponseViewSet)
 
-urlpatterns = [path('admin/', admin.site.urls), path('', include(router.urls)), path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))]
+urlpatterns = [
+        path('admin/', admin.site.urls), 
+        path('', include(router.urls)), 
+        path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+        path('confirm/', confirm, name='confirm')
+    ]
