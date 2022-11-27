@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from .serializers import ProblemSerializer, InterviewSerializer
 from .models import Problem, Interview
-from users.models import CustomUser
+from users.models import CustomUser, ToDoItem
 from rest_framework import viewsets
 from rest_framework import permissions
 from django.views.decorators.csrf import csrf_exempt
@@ -11,6 +11,8 @@ from external.meeting import meetingRoom
 from external.IDE import IDE
 from datetime import datetime
 from django.http import HttpResponse, JsonResponse
+from rest_framework.reverse import reverse
+
 # Create your views here.
 
 class InterviewViewSet(viewsets.ModelViewSet):
@@ -26,6 +28,7 @@ def confirm(request):
         'H': 3
     }
     if request.method == 'POST':
+        # Create interview object based on the post data
         data = JSONParser().parse(request)
         viewer_id = CustomUser.objects.get(username = data['viewer']).pk
         viewee_id = CustomUser.objects.get(username = data['viewee']).pk
@@ -47,5 +50,18 @@ def confirm(request):
         interview.save()
         interview.problems.add(prob)
         serializer = InterviewSerializer(interview)
+        # Update Todo List
+        ToDoItem.objects.create(
+                owner = CustomUser.objects.get(username = data['viewer']),
+                name = data['viewee'],
+                type = 'I',
+                link = reverse('interview-detail', args=[interview.pk], request=request)             # link to the interview object
+            )
+        ToDoItem.objects.create(
+                owner = CustomUser.objects.get(username = data['viewee']),
+                name = data['viewer'],
+                type = 'I',
+                link = reverse('interview-detail', args=[interview.pk], request=request)             # link to the interview object
+            )
         return JsonResponse(serializer.data, safe=False)
         
