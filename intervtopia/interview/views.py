@@ -10,7 +10,7 @@ from external.leetCodeWrapper import leetCodeQuestionQuery
 from external.meeting import meetingRoom
 from external.IDE import IDE
 from datetime import datetime
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 # Create your views here.
 
 class InterviewViewSet(viewsets.ModelViewSet):
@@ -46,7 +46,6 @@ def confirm(request):
         )
         interview.save()
         interview.problems.add(prob)
-
-        print(interview)
-        return HttpResponse()
+        serializer = InterviewSerializer(interview)
+        return JsonResponse(serializer.data, safe=False)
         
