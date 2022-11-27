@@ -27,9 +27,18 @@ function ReplyMessageModal(props) {
     >
     <Modal.Header closeButton>
         <Modal.Title id="contained-modal-title-vcenter">
+        Replying Message to {props.name}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
+      <p>
+          You can write your message to {props.name} here.
+        </p>
+        <Form.Group className="mb-3">
+        <Form.Control
+          placeholder="Enter your message here."
+          as="textarea" rows={3}></Form.Control>
+        </Form.Group>
       </Modal.Body>
       <Modal.Footer>
       <Button variant="primary" className="btn-fill" onClick={props.onHide}>
@@ -45,7 +54,7 @@ function Messages() {
   const [messagelist, setmessageList] = useState(messages_list);
 
   const deleteMessage = (id) => {
-  
+    return setmessageList([...messagelist.filter((element) => element.id !== id)]);
   };
 
   const [replyMessageModalShow, setreplyMessageModalShow] = React.useState(false);
