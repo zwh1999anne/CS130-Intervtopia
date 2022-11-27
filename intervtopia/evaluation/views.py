@@ -1,7 +1,5 @@
-from django.http import HttpResponse, Http404, JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.urls import reverse
-from django.views import generic
-from django.http import HttpResponseRedirect
 # legacy import above
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render
@@ -10,6 +8,7 @@ from .models import EvalForm, Question
 from users.models import ToDoItem
 from rest_framework import viewsets
 from rest_framework import permissions
+from rest_framework.parsers import JSONParser
 # Create your views here.
 
 
@@ -84,6 +83,27 @@ def evaluate(request):
             )
         serializer = EvalFormSerializer(evalform, context={'request': request})
         return JsonResponse(serializer.data, safe = False)
+    
+@csrf_exempt
+def submit(request):
+    if request.method == 'POST':
+        data = JSONParser().parse(request)
+        form_id = data['form']
+        question_data = data['questions']
+        compressed_question_data = {}
+        for q in question_data:
+            compressed_question_data[q['id']] = q['score']
+        comments = data['comments']
+        form = EvalForm.objects.get(pk = form_id)
+        qs = form.questions.all()
+        for q in qs:
+            if q.pk in compressed_question_data.keys():
+                q.score = compressed_question_data[q.pk]
+                q.save()
+        form.comments = comments
+        form.save()
+        serializer = EvalFormSerializer(form, context={'request': request})
+    return JsonResponse(serializer.data, safe = False)
 
 # class ResponseViewSet(viewsets.ModelViewSet):
 #     """
@@ -97,38 +117,38 @@ def evaluate(request):
 # legacy code before using restframework
 
 
-def index(request):
-    return HttpResponse("Hello, world. You're at the evaluation forms")
+# def index(request):
+#     return HttpResponse("Hello, world. You're at the evaluation forms")
 
 
-def interviewer(request):
-    try:
-        question_list = Question.objects.filter(target__gte=0)
-        question_list = question_list.order_by('question_ranking')
+# def interviewer(request):
+#     try:
+#         question_list = Question.objects.filter(target__gte=0)
+#         question_list = question_list.order_by('question_ranking')
 
-        context = {'question_list': question_list}
-    except Question.DoesNotExist:
-        raise Http404('Question does not exist')
-    return render(request, 'evaluation/evalform.html', context)
-
-
-def interviewee(request):
-    try:
-        question_list = Question.objects.filter(target__lte=0)
-        question_list = question_list.order_by('question_ranking')
-
-        context = {'question_list': question_list}
-    except:
-        raise Http404('Question does not exist')
-    return render(request, 'evaluation/evalform.html', context)
+#         context = {'question_list': question_list}
+#     except Question.DoesNotExist:
+#         raise Http404('Question does not exist')
+#     return render(request, 'evaluation/evalform.html', context)
 
 
-def submit(request):
-    # Handle the POST data
-    EvalForm.update(request)
-    return HttpResponse("Thank you for submitting your response!")
+# def interviewee(request):
+#     try:
+#         question_list = Question.objects.filter(target__lte=0)
+#         question_list = question_list.order_by('question_ranking')
+
+#         context = {'question_list': question_list}
+#     except:
+#         raise Http404('Question does not exist')
+#     return render(request, 'evaluation/evalform.html', context)
 
 
-def results(request):
-    response = "You're looking at the results of evaluation"
-    return HttpResponse(response)
+# def submit(request):
+#     # Handle the POST data
+#     EvalForm.update(request)
+#     return HttpResponse("Thank you for submitting your response!")
+
+
+# def results(request):
+#     response = "You're looking at the results of evaluation"
+#     return HttpResponse(response)
