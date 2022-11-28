@@ -22,18 +22,18 @@ export function getPreferenceInfo(user_id){
    /*const [pdata, setPdata] = React.useState({});
     useEffect(() => {getUserPreference();}, []);*/
 
-    let session_url = "http://127.0.0.1:8000/users/1/"
+    let session_url = "http://127.0.0.1:8000/users/2/"
     const getUserPreference = async () => {
-      const { data } = await axios.get(session_url, {}, {
+      const { data } = await axios.get(session_url, {
+        auth: {
+            username: 'haofan',
+            password: 'asd70asd'
+          },
         proxy: {
             protocol: 'http',
             host: '127.0.0.1',
             // hostname: '127.0.0.1' // Takes precedence over 'host' if both are defined
-            port: 8000,
-            auth: {
-              username: 'haofan',
-              password: 'asd70asd'
-            }
+            port: 8000
           },
       });
       console.log(data)
