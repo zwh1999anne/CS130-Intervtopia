@@ -1,28 +1,16 @@
 from rest_framework import serializers
 from users.models import CustomUser
-from .models import Friendship
+from .models import Friendship, Message
 
 class FriendshipSerializer(serializers.HyperlinkedModelSerializer):
-    sender = serializers.ReadOnlyField(source='sender.username')
-    receiver = serializers.ReadOnlyField(source='receiver.username')
+    sender = serializers.HyperlinkedRelatedField(many = False, view_name='customuser-detail', queryset = CustomUser.objects.all())
+    receiver = serializers.HyperlinkedRelatedField(many = False, view_name='customuser-detail', queryset = CustomUser.objects.all())
     class Meta:
         model = Friendship
-        fields = [
-            'id',
-            'sender', 
-            'receiver'
-        ]
-
+        fields = ['id', 'sender', 'receiver']
 
 class MessageSerializer(serializers.HyperlinkedModelSerializer):
-    sender = serializers.ReadOnlyField(source='friendship.sender.username')
-    receiver = serializers.ReadOnlyField(source='friendship.receiver.username')
+    friendship = serializers.HyperlinkedRelatedField(many = False, view_name='friendship-detail', queryset = Friendship.objects.all())
     class Meta:
-        model = Friendship
-        fields = [
-            'id',
-            'sender', 
-            'receiver',
-            'message_text',
-            'time'
-        ]
+        model = Message
+        fields = ['id', 'friendship', 'message_text', 'time']
