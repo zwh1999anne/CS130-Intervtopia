@@ -33,7 +33,7 @@ class ToDoSerializer(serializers.HyperlinkedModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')
     class Meta:
         model = ToDoItem
-        fields = ['id', 'owner', 'name', 'type', 'time', 'link']
+        fields = ['id', 'owner', 'name', 'type', 'role', 'time', 'link']
 
 class HistorySerializer(serializers.HyperlinkedModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')
@@ -44,6 +44,7 @@ class HistorySerializer(serializers.HyperlinkedModelSerializer):
             'owner',
             'name',
             'time',
+            'role',
             'evaluated',
         ]
 

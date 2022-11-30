@@ -3,10 +3,10 @@ from .models import *
 # Register your models here.
 
 class TodoAdmin(admin.ModelAdmin):
-    list_display = ('owner', 'name', 'type', 'time')
+    list_display = ('owner', 'name', 'type', 'role','time')
 
 class HistoryAdmin(admin.ModelAdmin):
-    list_display = ('owner', 'name', 'time', 'evaluated')
+    list_display = ('owner', 'name', 'role', 'time', 'evaluated')
 
 class LanguageAdmin(admin.ModelAdmin):
     list_display = ('pk', "lang_name")
