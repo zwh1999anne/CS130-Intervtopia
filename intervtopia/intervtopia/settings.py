@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'friend_and_message.apps.FriendAndMessageConfig',
     'users.apps.UsersConfig',
     'interview.apps.InterviewConfig',
     'evaluation.apps.EvaluationConfig',
