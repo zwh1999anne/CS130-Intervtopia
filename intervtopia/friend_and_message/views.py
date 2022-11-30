@@ -6,6 +6,7 @@ from rest_framework import permissions
 from django.http import JsonResponse
 from rest_framework.decorators import action
 
+
 class FriendshipViewSet(viewsets.ModelViewSet):
     queryset = Friendship.objects.all()
     serializer_class = FriendshipSerializer
