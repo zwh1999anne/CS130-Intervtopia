@@ -131,6 +131,7 @@ class TestEvaluationAPI(APITestCase):
         ]
         for q in EvalForm.objects.get(pk=1).questions.all():
             assert(q.question_text in question_list)
+            self.assertEqual(q.score, 0)
 
 
     def test_invalid_request_to_evaluate(self):
@@ -140,116 +141,56 @@ class TestEvaluationAPI(APITestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_submit(self):
-        pass
+        self.assertEqual(len(EvalForm.objects.all()), 0)
+        # Create a todo object by calling the confirm API
+        data = {
+            "username": self.viewer.username,
+            "viewer": self.viewer.username,
+            "viewee": self.viewee.username,
+            "difficulty": "H",
+            "datetime": "11/26/22 17:24:00"
+        }
+        self.client.force_authenticate(user=self.viewer)
+        url = reverse('confirm')
+        response = self.client.post(url, data, format='json').json()
+        todo_id = response['id']
+
+        # Make a request to complete to update the todo
+        url = reverse('complete')
+        response = self.client.get(url, {"todo": todo_id}, format = 'json')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(HistoryItem.objects.all()), 1)
+        # hist_id = HistoryItem.objects.all()[0].pk
+
+        # Make a new request to the evaluate API
+        url = reverse('evaluate')
+        response = self.client.get(url, {"todo": todo_id}, format = 'json')
+        self.assertEqual(response.status_code, 200)
+        eval_id = response.json()['id']
+        self.assertEqual(eval_id, 1)
+
+        questions = response.json()['questions']
+        question_ids = [int(q.split('/')[-2]) for q in questions]
+        question_scores = random.choices(list(range(1,6)), k = len(question_ids))
+        cmmts = random_string_generator(50, password_chars)
+        data = {
+            "form":eval_id,
+            "questions":[],
+            "comments" : cmmts
+        }
+        for i in range(len(question_ids)):
+            data['questions'].append({"id":question_ids[i], "score": question_scores[i]})
+        
+        url = reverse('submit')
+        response = self.client.post(url, data, format='json')
+        response_data = response.json()
+        for i in range(len(question_ids)):
+            self.assertEqual(Question.objects.get(pk = question_ids[i]).score, question_scores[i])
+        self.assertEqual(response_data['comments'], cmmts)
+
 
     def test_invalid_request_to_submit(self):
-        pass
-
-
-
-
-
-
-
-
-
-# class QuestionModelTests(TestCase):
-#     def test_crud_a_question(self):
-#         test_dict = {'question_text': "Test Question for interviewee", 'target': 'EE', 'question_ranking': 99, 'question_name': 'test_q_for_ee'}
-
-#         # create
-#         question = Question.objects.create(**test_dict)
-
-#         self.assertEqual(question.target, 'EE')
-#         self.assertEqual(question.question_ranking, 99)
-#         self.assertEqual(question.question_name, 'test_q_for_ee')
-
-#         # read
-#         question_set = Question.objects.filter(**test_dict)
-
-#         for question in question_set.all():
-#             self.assertEqual(question.target, 'EE')
-#             self.assertEqual(question.question_ranking, 99)
-#             self.assertEqual(question.question_name, 'test_q_for_ee')
-
-#         # update
-#         update_dict = {'target': 'ER', 'question_ranking': 79}
-
-#         test_dict.update(update_dict)
-
-#         question_set.update(**update_dict)
-#         question_set = Question.objects.filter(**test_dict)
-
-#         for question in question_set.all():
-#             self.assertEqual(question.target, 'ER')
-#             self.assertEqual(question.question_ranking, 79)
-#             self.assertEqual(question.question_name, 'test_q_for_ee')
-
-#         # delete
-#         question_set.delete()
-
-#         question_set = Question.objects.filter(**test_dict)
-
-#         self.assertEqual(question_set.count(), 0)
-
-
-# class EvalFormModelTests(TestCase):
-#     def test_crud_a_eval_form(self):
-#         test_dict_response = {'name': "Test response", 'problem_solving': 2, 'communication': 3, 'coding_skill': 4, 'helpful': 1}
-#         test_dict_question1 = {'question_text': "Test Question 1 for interviewee", 'target': 'EE', 'question_ranking': 99, 'question_name': 'test_q_for_ee'}
-#         test_dict_question2 = {'question_text': "Test Question 2 for interviewee", 'target': 'EE', 'question_ranking': 99, 'question_name': 'test_q_for_ee'}
-
-#         response = Response.objects.create(**test_dict_response)
-#         question1 = Question.objects.create(**test_dict_question1)
-#         question2 = Question.objects.create(**test_dict_question2)
-#         user = CustomUser.objects.create(username='carlo')
-
-#         test_dict_eval = {'name': "Test response", 'rating': 2, 'comments': 'no comment', 'response': response, 'target_user': user, 'target_role': 'EE'}
-
-#         # create
-#         evalform = EvalForm.objects.create(**test_dict_eval)
-
-#         evalform.questions.set([question1, question2])
-
-#         self.assertEqual(evalform.name, "Test response")
-#         self.assertEqual(evalform.rating, 2)
-#         self.assertEqual(evalform.comments, 'no comment')
-#         self.assertEqual(evalform.target_role, 'EE')
-#         self.assertEqual(evalform.response.coding_skill, 4)
-#         self.assertEqual(evalform.target_user.username, 'carlo')
-
-#         # read
-#         eval_set = EvalForm.objects.filter(**test_dict_eval)
-
-#         for evalform in eval_set.all():
-#             self.assertEqual(evalform.name, "Test response")
-#             self.assertEqual(evalform.rating, 2)
-#             self.assertEqual(evalform.comments, 'no comment')
-#             self.assertEqual(evalform.target_role, 'EE')
-#             self.assertEqual(evalform.response.coding_skill, 4)
-
-#         # update
-#         update_dict = {'rating': 5, 'comments': 'pretty good'}
-
-#         test_dict_eval.update(update_dict)
-
-#         eval_set.update(**update_dict)
-#         eval_set = EvalForm.objects.filter(**test_dict_eval)
-
-#         for evalform in eval_set.all():
-#             self.assertEqual(evalform.name, "Test response")
-#             self.assertEqual(evalform.rating, 5)
-#             self.assertEqual(evalform.comments, 'pretty good')
-#             self.assertEqual(evalform.target_role, 'EE')
-#             self.assertEqual(evalform.response.coding_skill, 4)
-
-#         # delete
-#         response.delete()
-#         question1.delete()
-#         question2.delete()
-#         user.delete()
-#         eval_set.delete()
-
-#         eval_set = EvalForm.objects.filter(**test_dict_eval)
-
-#         self.assertEqual(eval_set.count(), 0)
+        self.client.force_authenticate(user=self.viewer)
+        url = reverse('submit')
+        response = self.client.get(url, {}, format='json')
+        self.assertEqual(response.status_code, 404)

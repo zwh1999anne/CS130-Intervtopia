@@ -97,8 +97,10 @@ def submit(request):
     '''
     TODO: need parameters: todo and history
     '''
+    # data = JSONParser().parse(request)
     if request.method == 'POST':
         data = JSONParser().parse(request)
+        # print(data)
         form_id = data['form']
         question_data = data['questions']
         compressed_question_data = {}
