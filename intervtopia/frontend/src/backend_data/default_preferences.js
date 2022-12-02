@@ -18,12 +18,10 @@ const default_preference = {
 
 export const current_user_id = 2;
 
-export function getPreferenceInfo(user_id){
-   /*const [pdata, setPdata] = React.useState({});
-    useEffect(() => {getUserPreference();}, []);*/
-
+export async function getPreferenceInfo(user_id){
     let session_url = "http://127.0.0.1:8000/users/2/"
-    const getUserPreference = async () => {
+
+    async function getUserPreference(){
       const { data } = await axios.get(session_url, {
         auth: {
             username: 'haofan',
@@ -36,21 +34,14 @@ export function getPreferenceInfo(user_id){
             port: 8000
           },
       });
-      console.log(data)
+      //console.log(data)
+      let preferences = processPreferenceInfo(data);
+
+      return preferences;
     }
-
-    getUserPreference();
-
-    /* axios.get("http://127.0.0.1:8000/users/2/")
-      .then((res) => {console.log(res)})
-      .catch((err) => console.log(err)); */
-
-    /* if(Object.keys(pdata).length !== 0){
-        return processPreferenceInfo(pdata);
-    } */
-
-
-    return default_preference;
+    let processed_preferences = await getUserPreference();
+    
+    return processed_preferences;
 }
 
 function processPreferenceInfo(raw_data){
@@ -104,21 +95,21 @@ function processPreferenceInfo(raw_data){
         processed_preferences.desired_difficulty = "hard";
     }
     else if(raw_data.preferred_difficulty === "E"){
-        processed_preferences.interview_role = "easy";
+        processed_preferences.desired_difficulty = "easy";
     }
     else{
-        processed_preferences.interview_role = "medium";
+        processed_preferences.desired_difficulty = "medium";
     }
 
     if(raw_data.availability.length >= 2){
-        time1 = process_date_time(raw_data.availability[0]);
-        time2 = process_date_time(raw_data.availability[1]);
+        let time1 = process_date_time(raw_data.availability[0]);
+        let time2 = process_date_time(raw_data.availability[1]);
         processed_preferences.available_day = time1[0];
         processed_preferences.available_time = time1[1];
         processed_preferences.additional_available_day = time2[0];
         processed_preferences.additional_available_time = time2[1];
     }else if(raw_data.availability.length >= 1){
-        time1 = process_date_time(raw_data.availability[0]);
+        let time1 = process_date_time(raw_data.availability[0]);
         processed_preferences.available_day = time1[0];
         processed_preferences.available_time = time1[1];
         processed_preferences.additional_available_day = "";
@@ -146,7 +137,7 @@ function process_date_time(input){
     let time_length = 2;
     for(let i = 0; i < input.length; i++){
         if(input[i] === ':' && date_get === false){
-            date = input.substring(0, i+1);
+            date = input.substring(0, i);
             time_begin = i + 2;
             if(input[i + 2] === '0'){
                 time_begin = i + 3;
@@ -156,7 +147,7 @@ function process_date_time(input){
             break;
         }
     }
-    first_time = input.substring(time_begin, time_length);
+    first_time = input.substr(time_begin, time_length);
     var time_digit = parseInt(first_time,10);
     if(time_digit < 9){
         first_time = "9";

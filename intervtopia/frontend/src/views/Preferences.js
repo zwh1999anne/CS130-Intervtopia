@@ -14,9 +14,7 @@ import {
   Modal
 } from "react-bootstrap";
 
-import {getPreferenceInfo, current_user_id} from "backend_data/default_preferences";
-
-const default_preferences = getPreferenceInfo(current_user_id);
+import {current_user_id, getPreferenceInfo} from "backend_data/default_preferences";
 
 function UpdateConfirmModal(props) {
   return (
@@ -44,6 +42,12 @@ function UpdateConfirmModal(props) {
 function Preferences() {
 
   const [UpdateConfirmModalShow, setUpdateConfirmModalShow] = useState(false);
+
+  const [preferences, setPreferences] = useState({});
+
+  getPreferenceInfo(current_user_id).then((value) => setPreferences(value));
+
+  var default_preferences = preferences;
 
   return (
     <>

@@ -28,7 +28,6 @@ let current_match = "random";
 let curr_info={id: "-1", name: " ", type: " ", time: " "}
 let curr_todo_id = toDos.length + 1;
 let curr_interview_id = interviews_list.length + 1;
-const default_preferences = getPreferenceInfo(current_user_id);
 
 function AddFriendModal(props) {
   return (
@@ -78,7 +77,7 @@ function LauchInterviewModal(props) {
           Please confirm if you want to interview with {props.name} at the following time:
         </p>
         <p>
-        {default_preferences.available_day}, {default_preferences.available_time}
+        {props.day}, {props.time}
         </p>
       </Modal.Body>
       <Modal.Footer>
@@ -309,6 +308,12 @@ function Dashboard() {
   const [launchInterviewShow, setlaunchinterviewShow] = React.useState(false);
   const [interviewName, setinterviewName] = React.useState(" ");
 
+  const [preferences, setPreferences] = useState({});
+
+  getPreferenceInfo(current_user_id).then((value) => setPreferences(value));
+
+  var default_preferences = preferences;
+
 
   return (
     <>
@@ -475,7 +480,9 @@ function Dashboard() {
                         <Button variant="primary" className="btn-fill mr-3" size="sm" onClick={() => {setlaunchinterviewShow(true); setinterviewName(element.name)}}>
                         Interview Again
                         </Button>
-                        <LauchInterviewModal name={interviewName} show={launchInterviewShow} onHide={() => setlaunchinterviewShow(false)}></LauchInterviewModal>
+                        <LauchInterviewModal name={interviewName} show={launchInterviewShow} 
+                        day = {default_preferences.available_day} time = {default_preferences.available_time}
+                        onHide={() => setlaunchinterviewShow(false)}></LauchInterviewModal>
                         <Button variant="primary" size="sm"  onClick={() => {setaddFriendModalShow(true); setFriendModalName(element.name)}}>Add Friend</Button>
                         <AddFriendModal name = {FriendModalName} show={addFriendModalShow} onHide={() => setaddFriendModalShow(false)}></AddFriendModal>
                         </div>
