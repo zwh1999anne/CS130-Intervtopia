@@ -25,15 +25,15 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
-from users import views
+from users.views import update_preference, match, UserViewSet, ToDoViewSet, HistoryViewSet
 from friend_and_message.views import FriendshipViewSet, MessageViewSet
 from evaluation.views import EvalFormViewSet, QuestionViewSet, evaluate, submit
 from interview.views import InterviewViewSet, confirm, complete, join_meeting
 
 router = routers.DefaultRouter()
-router.register(r'users', views.UserViewSet)
-router.register(r'todo', views.ToDoViewSet)
-router.register(r'history', views.HistoryViewSet)
+router.register(r'users', UserViewSet)
+router.register(r'todo', ToDoViewSet)
+router.register(r'history', HistoryViewSet)
 router.register(r'interview', InterviewViewSet)
 # router.register(r'eval-form-choice', ChoiceViewSet)
 # router.register(r'eval-form-response', ResponseViewSet)
@@ -47,9 +47,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    path('matching/', views.match, name='matching'),
+    path('matching/', match, name='matching'),
     path('confirm/', confirm, name='confirm'),
-    path('matching/', views.match, name='matching'),
+    path('preference/', update_preference, name='preference'),
     path('complete/', complete, name='complete'),
     path('join/', join_meeting, name='join'),
     path('evaluate/', evaluate, name='evaluate'),

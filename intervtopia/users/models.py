@@ -4,6 +4,7 @@ from datetime import datetime
 from django.utils.timezone import now
 import math
 import random
+from django.core.exceptions import ObjectDoesNotExist
 # from interview.models import *
 
 
@@ -13,51 +14,12 @@ class Language(models.Model):
     def __str__(self) -> str:
         return self.lang_name
 
-    @staticmethod
-    def add(lang: str):
-        if len(Language.objects.filter(lang_name=lang)) == 0:
-            lang = Language.objects.create(lang_name=lang)
-            return lang
-
-    @staticmethod
-    def remove(lang: str):
-        filter_results = Language.objects.filter(lang_name=lang)
-        if len(filter_results) != 0:
-            filter_results.delete()
-
-    @staticmethod
-    def get(lang: str):
-        return Language.objects.filter(lang_name=lang)
-
 
 class Company(models.Model):
     company_name = models.CharField(max_length=100)
 
     def __str__(self) -> str:
         return self.company_name
-
-    @staticmethod
-    def add(company: str):
-        if len(Company.objects.filter(company_name=company)) == 0:
-            comp = Company.objects.create(company_name=company)
-            return comp
-
-    @staticmethod
-    def remove(company: str):
-        filter_results = Company.objects.filter(company_name=company)
-        if len(filter_results) != 0:
-            filter_results.delete()
-
-    @staticmethod
-    def update(old_name: str, new_name: str):
-        filter_results = Company.objects.filter(company_name=old_name)
-        if len(filter_results) != 0:
-            filter_results[0].update(company_name=new_name)
-        return Company.objects.filter(company_name=new_name)
-
-    @staticmethod
-    def get(company: str):
-        return Company.objects.filter(company_name=company)
 
 
 class Position(models.Model):
@@ -66,57 +28,6 @@ class Position(models.Model):
     def __str__(self) -> str:
         return self.position_name
 
-    @staticmethod
-    def add(position: str):
-        if len(Position.objects.filter(position_name=position)) == 0:
-            pos = Position.objects.create(position_name=position)
-            return pos
-
-    @staticmethod
-    def remove(position: str):
-        filter_results = Position.objects.filter(position_name=position)
-        if len(filter_results) != 0:
-            filter_results.delete()
-
-    @staticmethod
-    def update(old_name: str, new_name: str):
-        filter_results = Position.objects.filter(position_name=old_name)
-        if len(filter_results) != 0:
-            filter_results[0].update(position_name=new_name)
-
-    @staticmethod
-    def get(position: str):
-        return Position.objects.filter(position_name=position)
-
-'''
-class Calendar(models.Model):
-    ext_url = models.URLField()
-
-    def __str__(self) -> str:
-        return self.ext_url
-
-    @staticmethod
-    def add(calendar_url: str):
-        if len(Calendar.objects.filter(ext_url=calendar_url)) == 0:
-            cal = Calendar.objects.create(ext_url=calendar_url)
-            return cal
-
-    @staticmethod
-    def remove(calendar_url: str):
-        filter_results = Calendar.objects.filter(ext_url=calendar_url)
-        if len(filter_results) != 0:
-            filter_results.delete()
-
-    @staticmethod
-    def update(old_calendar_url: str, new_calendar_url: str):
-        filter_results = Calendar.objects.filter(ext_url=old_calendar_url)
-        if len(filter_results) != 0:
-            filter_results[0].update(ext_url=new_calendar_url)
-
-    @staticmethod
-    def get(calendar_url: str):
-        return Calendar.objects.filter(ext_url=calendar_url)
-''' 
 
 class Availability(models.Model):
     day_choices = [
@@ -134,6 +45,7 @@ class Availability(models.Model):
 
     def __str__(self) -> str:
         return self.day + ': {}-{}'.format(self.start_time, self.end_time)
+
 
 
 class CustomUser(AbstractUser):
@@ -158,118 +70,161 @@ class CustomUser(AbstractUser):
     def __str__(self) -> str:
         return self.username
 
-    @staticmethod
-    def create_user_base(username: str, password: str, email: str):
+    def add_target_company(self, company: str):
         '''
-        TODO: Create a base user object and store it in the database, return the object
+        Add a new company to the target company list
+        if the company is already in the database, simply add it to the user's target_companys 
+        if the company is not in the database, first add it to the database, then include it in the user's target_companys
+        return True if success, report error otherwise
         '''
+        if company == '':
+            raise ValueError("company cannot be empty string")
+        comp, _ = Company.objects.get_or_create(company_name = company)
+        self.target_companys.add(comp)
 
-    def add_target_company(self, company: str) -> int:
+    def remove_target_company(self, company: str):
         '''
-        TODO: add a new company to the target company list
-            if the company is already in the database, simply add it to the user's target_companys 
-            if the company is not in the database, first add it to the database, then include it in the user's target_companys
+        Remove the specified company from the user's target company list, but keep it in the database
             return True if success, report error otherwise
         '''
         if company == '':
-            return -1
-        print("Adding {} to user's target company list".format(company))
-        return 0
+            raise ValueError("company cannot be empty string")
+        try: 
+            comp, _ = Company.objects.get(company_name = company)
+            self.target_companys.remove(comp)
+        except ObjectDoesNotExist:
+            raise ValueError("company is not found in the database")
 
-    def remove_target_company(self, company: str) -> int:
+    def add_target_position(self, position: str):
         '''
-        TODO: remove the specified company from the user's target company list, but keep it in the database
-            return True if success, report error otherwise
-        '''
-        if company == '':
-            return False
-        print("Remove {} from user's target company list".format(company))
-        return True
-
-    def add_target_position(self, position: str) -> int:
-        '''
-        TODO: add a new position to the target position list
+        Add a new position to the target position list
             if the position is already in the database, simply add it to the user's target_positions 
             if the position is not in the database, first add it to the database, then include it in the user's target_positions
             return True if success, report error otherwise
         '''
-        print("Add {} to user's target positions".format(position))
-        return True
+        if position == '':
+            raise ValueError("position cannot be empty string")
+        pos, _ = Position.objects.get_or_create(position_name = position)
+        self.target_positions.add(pos)
 
-    def remove_target_position(self, position: str) -> int:
+    def remove_target_position(self, position: str):
         '''
-        TODO: remove the specified company from the user's target company list, but keep it in the database
+        Remove the specified company from the user's target company list, but keep it in the database
             return True if success, report error otherwise
         '''
-        print("Remove {} from user's target position".format(position))
-        return True
+        if position == '':
+            raise ValueError("company cannot be empty string")
+        try: 
+            pos, _ = Position.objects.get(position_name = position)
+            self.target_positions.remove(pos)
+        except ObjectDoesNotExist:
+            raise ValueError("position is not found in the database")
 
-    def add_preferred_language(self, lang: str) -> int:
+    def add_preferred_language(self, lang: str):
         '''
-        TODO: add a new Language to the target position list
-            return True if success, report error otherwise
+        Add a new Language to the preferred language list
         '''
-        print("Add {} to user's preferred language".format(lang))
-        return True
+        if lang == '':
+            raise ValueError("lang cannot be empty string")
+        language, _ = Language.objects.get_or_create(lang_name = lang)
+        self.preferred_languages.add(language)
 
     def remove_preferred_language(self, lang: str) -> int:
         '''
-        TODO: add a new Language to the target position list
+        Remove the Language to the preferred language list
+        '''
+        if lang == '':
+            raise ValueError("lang cannot be empty string")
+        try: 
+            language, _ = Language.objects.get(lang_name = lang)
+            self.preferred_languages.remove(language)
+        except ObjectDoesNotExist:
+            raise ValueError("position is not found in the database")
+
+    def set_preferred_difficulty(self, diff: str):
+        '''
+        Set the user's preferred difficulty
             return True if success, report error otherwise
         '''
-        print("Remove {} from user's preferred language".format(lang))
-        return True
+        if diff not in ['E', 'M', 'H']:
+            raise ValueError("Invalid input")
+        self.preferred_difficulty = diff
 
-    def set_preferred_difficulty(self, diff: str) -> int:
+    def update_history(self, new_interivew: dict):
         '''
-        TODO: set the user's preferred difficulty
-            return True if success, report error otherwise
-        '''
-
-        print("Set user's preferred difficulty as {}".format(diff))
-        return True
-
-    def update_history(self, new_interivew: dict) -> int:
-        '''
-        TODO: add the new interview information to the history list
+        Add the new interview information to the history list
             return True if success, report error otherwise
         Note: the input param new_interview is ideally an object of Interview. 
             However, due to python's banning on cyclic import, we cannot import Interview here.
             Method to fix this problem is going to be lookup.
+        new_interview = {
+            name: xxx,
+            role: xx,
+        }
         '''
-        print("Adding meeting {} to user's history".format(new_interivew))
-        return True
+        HistoryItem.objects.create(owner = self, name = new_interivew['name'], role = new_interivew['role'])
+        
 
+    def add_availability(self, day: str, start_time: str, end_time: str):
+        if day not in ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']:
+            raise ValueError("Invalid input: day")
+        st = datetime.strptime(start_time, "%H:%M").time()
+        et = datetime.strptime(end_time, "%H:%M").time()
+        if st >= et:
+            raise ValueError(f"Invalid input: start_time ({start_time}) should be before end_time ({end_time})")
+        
+        avai, _ = Availability.objects.get_or_create(day = day, start_time = st, end_time = et)
+        self.availability.add(avai)
+
+    def remove_availability(self, day: str, start_time: str, end_time: str):
+        if day not in ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']:
+            raise ValueError("Invalid input: day")
+        if start_time >= end_time:
+            raise ValueError("Invalid input: start_time should be before end time")
+        try: 
+            st = datetime.strptime(start_time, "%H:%M").time()
+            et = datetime.strptime(end_time, "%H:%M").time()
+            avai, _ = Language.objects.get(day = day, start_time = st, end_time = et)
+            self.availability.remove(avai)
+        except ObjectDoesNotExist:
+            raise ValueError("position is not found in the database")
+        
     def get_historic_meetings(self) -> dict:
         '''
-        TODO: return the history of interview in the JSON format
+        Return the history of interviews
         '''
-        print("This should report user's historic meetings")
-        return True
+        return self.history.all()
 
-    def set_calendar(self, calendar: str) -> int:
+    def set_rating(self, rating: float):
         '''
-        TODO: set user's availability
+        Set user's rating
             return True if success, report error otherwise
         '''
-        print("Setting user's calendar to {}".format(calendar))
-        return True
+        if rating >=0 and rating <= 5.0:
+            self.rating = rating
+        else:
+            raise ValueError("Invalid input: {} is out of range [0, 5]".format(rating))
 
-    def set_rating(self, rating: float) -> int:
+    def set_matching_strategy(self, strategy: str):
         '''
-        TODO: set user's rating
+        Set user's matching strategy
             return True if success, report error otherwise
         '''
-        print("Setting user's rating to {}".format(rating))
-        return True
+        if strategy not in ['random', 'preference', 'history']:
+            raise ValueError("Invalid input")
+        self.matchingStrategy = strategy
 
-    def set_matching_strategy(self, strategy: str) -> int:
+    def set_preferred_role(self, role: str):
         '''
-        TODO: set user's matching strategy
-            return True if success, report error otherwise
+        Set user's preferred role
         '''
-        print("Setting user's matching strategy to {}".format(strategy))
-        return True
+        if role not in ['B', 'ER', 'EE']:
+            raise ValueError("Invalid input")
+        self.preferred_role = role
+    
+    def save_changes(self):
+        self.save()
+
 
 
 class ToDoItem(models.Model):
@@ -336,9 +291,10 @@ class RandomMatching(MatchingStrategy):
 
     def getPair(self, user: CustomUser):
         queryset = CustomUser.objects.all()
-        idx = random.randint(1, len(queryset))
+        choices = [u.pk for u in queryset]
+        choices.remove(user.pk)
+        idx = random.choice(choices)
         pair = CustomUser.objects.get(pk = idx)
-        print(pair.username)
         return pair
 
 
@@ -419,7 +375,7 @@ class PreferenceMatching(MatchingStrategy):
         Find matching based on feature vector
         '''
         self._get_feature_dict()
-        print(self.feature_dict)
+        # print(self.feature_dict)
         usr_vec = self.feature_dict[user.username]
         score_dict = {}
         for k, v in self.feature_dict.items():

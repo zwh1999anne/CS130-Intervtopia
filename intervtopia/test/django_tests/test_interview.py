@@ -1,9 +1,17 @@
-from django.test import TestCase, Client
+from django.test import TestCase
 from interview.models import *
 from external.leetCodeWrapper import leetCodeQuestionQuery, interviewQuestion
 from django.urls import reverse
+from rest_framework.test import APIClient, APITestCase
+import random
+import string
 # Create your tests here.
 
+def random_string_generator(str_size, allowed_chars):
+    return ''.join(random.choice(allowed_chars) for x in range(str_size))
+ 
+username_chars = string.ascii_letters
+password_chars = string.ascii_letters + string.punctuation
 
 class addRandomQuestionTests(TestCase):
 
@@ -13,11 +21,10 @@ class addRandomQuestionTests(TestCase):
         test_q_in_db = []
         for difficulty in range(1, 4):
             q = query.getRandomQuestion(difficulty)
-            q_in_db = Problem.objects.create(problem_name=q.getTitle(), problem_difficulty=q.getDifficulty(), problem_url=q.getURL(), problem_id=q.getFrontendID())
-            self.assertEqual(q_in_db.problem_name, q.getTitle())
-            self.assertEqual(q_in_db.problem_difficulty, q.getDifficulty())
-            self.assertEqual(q_in_db.problem_url, q.getURL())
-            self.assertEqual(q_in_db.problem_id, q.getFrontendID())
+            q_in_db = Problem.objects.create(name=q.getTitle(), difficulty=q.getDifficulty(), url=q.getURL())
+            self.assertEqual(q_in_db.name, q.getTitle())
+            self.assertEqual(q_in_db.difficulty, q.getDifficulty())
+            self.assertEqual(q_in_db.url, q.getURL())
             test_q_in_db.append(q_in_db)
         q_count_now = Problem.objects.all().count()
         self.assertEqual(q_count_now - q_count_prev, 3)
@@ -26,171 +33,165 @@ class addRandomQuestionTests(TestCase):
         q_count_now = Problem.objects.all().count()
         self.assertEqual(q_count_now, q_count_prev)
 
+class TestInterviewAPI(APITestCase):
 
-class InterviewerModelTests(TestCase):
+    def setUp(self):
+        company_list = ["Google", "Amazon", "Meta", "Apple", "Microsoft"]
+        position_list = ["Software Engineer", "Software Intern", "Product Manager", "Software Specialist"]
+        language_list = ["Python", "C++", "C#", "Java", "JavaScript", "PHP"]
+        role_list = ['B', 'ER', 'EE']
+        difficulty_list = ['E', 'M', 'H']
+        day_list = ['Mon',
+            'Tue',
+            'Wed',
+            'Thu',
+            'Fri',
+            'Sat',
+            'Sun'
+        ]
+        time_list = ["{}:00".format(hour) for hour in range(0, 24) ]
 
-    def test_crud_a_interviewer(self):
+        for i in range(2):
+            uname = random_string_generator(10, username_chars)
+            pwd = random_string_generator(15, password_chars)
+            u = CustomUser.objects.create(username = uname, password = pwd)
+            u.add_target_company(random.choice(company_list))
+            u.add_target_position(random.choice(position_list))
+            u.add_preferred_language(random.choice(language_list))
+            u.set_preferred_role(random.choice(role_list))
+            u.set_preferred_difficulty(random.choice(difficulty_list))
+            selected_time_index =random.randint(0, 22)
+            u.add_availability(random.choice(day_list), time_list[selected_time_index], time_list[selected_time_index+1])
+            u.save_changes()
 
-        test_dict_response = {'name': "Test response", 'problem_solving': 2, 'communication': 3, 'coding_skill': 4, 'helpful': 1}
+        self.assertEqual(len(CustomUser.objects.all()), 2)
+        self.user = CustomUser.objects.get(pk=1)
 
-        response = Response.objects.create(**test_dict_response)
-        user1 = CustomUser.objects.create(username='carlo')
-        user2 = CustomUser.objects.create(username='david')
+        self.client = APIClient()
+    
+    def test_interviewee_confirm(self):
+        self.assertEqual(len(self.user.todo.all()), 0)
+        data = {
+            "username": self.user.username,
+            "viewer": CustomUser.objects.get(pk = 2).username,
+            "viewee": self.user.username,
+            "difficulty": "E",
+            "datetime": "11/26/22 17:24:00"
+        }
+        self.client.force_authenticate(user=self.user)
+        url = reverse('confirm')
+        response = self.client.post(url, data, format='json').json()
+        self.assertEqual(response['owner'], self.user.username)
+        self.assertEqual(response['name'], CustomUser.objects.get(pk = 2).username)
+        self.assertEqual(response['type'], 'I')
+        self.assertEqual(response['role'], 'EE')
+        self.assertNotEqual(response['link'], '')
+        self.assertEqual(len(self.user.todo.all()), 1)
+        # Get Interview object
+        interview_response = self.client.get(response['link'], format='json').json()
+        self.assertEqual(interview_response['problems'][0]['difficulty'], 'E')
+        self.assertNotEqual(interview_response['problems'][0]['url'], '')
+        self.assertNotEqual(interview_response['room_link'], '')
+        self.assertNotEqual(interview_response['ide_link'], '')
 
-        test_dict_eval = {'name': "Test response", 'rating': 2, 'comments': 'no comment', 'response': response, 'targer_user': user1, 'target_role': 'EE'}
+    def test_interviewer_confirm(self):
+        self.assertEqual(len(self.user.todo.all()), 0)
+        data = {
+            "username": self.user.username,
+            "viewer": self.user.username,
+            "viewee": CustomUser.objects.get(pk = 2).username,
+            "difficulty": "H",
+            "datetime": "11/26/22 17:24:00"
+        }
+        self.client.force_authenticate(user=self.user)
+        url = reverse('confirm')
+        response = self.client.post(url, data, format='json').json()
+        self.assertEqual(response['owner'], self.user.username)
+        self.assertEqual(response['name'], CustomUser.objects.get(pk = 2).username)
+        self.assertEqual(response['type'], 'I')
+        self.assertEqual(response['role'], 'ER')
+        self.assertNotEqual(response['link'], '')
+        self.assertEqual(len(self.user.todo.all()), 1)
+        # Get Interview object
+        interview_response = self.client.get(response['link'], format='json').json()
+        self.assertEqual(interview_response['problems'][0]['difficulty'], 'H')
+        self.assertNotEqual(interview_response['problems'][0]['url'], '')
+        self.assertNotEqual(interview_response['room_link'], '')
+        self.assertNotEqual(interview_response['ide_link'], '')
 
-        evalform = EvalForm.objects.create(**test_dict_eval)
+    def test_invalid_request_to_confirm(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('confirm')
+        response = self.client.get(url, {}, format='json')
+        self.assertEqual(response.status_code, 404)
 
-        test_dict = {'user': user1, 'evalForm': evalform}
+    
+    def test_complete(self):
+        self.assertEqual(len(self.user.history.all()), 0)
+        self.assertEqual(len(self.user.todo.all()), 0)
 
-        # create
-        interviewer = Interviewer.objects.create(**test_dict)
+        # Create a todo object by calling the confirm API
+        data = {
+            "username": self.user.username,
+            "viewer": self.user.username,
+            "viewee": CustomUser.objects.get(pk = 2).username,
+            "difficulty": "H",
+            "datetime": "11/26/22 17:24:00"
+        }
+        self.client.force_authenticate(user=self.user)
+        url = reverse('confirm')
+        response = self.client.post(url, data, format='json').json()
+        todo_id = response['id']
+        
+        # Examine the updated todo object
+        url = reverse('complete')
+        response = self.client.get(url, {"todo": todo_id}, format = 'json')
+        self.assertEqual(response.status_code, 200)
+        response_data = response.json()
+        self.assertEqual(response_data['type'], 'E')
+        self.assertEqual(len(self.user.history.all()), 1)
 
-        self.assertEqual(interviewer.user.username, "carlo")
-        self.assertEqual(interviewer.evalForm.name, "Test response")
+        # Examine the created history object
+        hist = self.user.history.all()[0]
+        self.assertEqual(hist.owner.username, self.user.username)
+        self.assertEqual(hist.name, CustomUser.objects.get(pk = 2).username)
+        self.assertEqual(hist.role, 'ER')
+        self.assertEqual(hist.evaluated, False)
+    
+    def test_invalid_request_to_complete(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('complete')
+        response = self.client.post(url, {}, format='json')
+        self.assertEqual(response.status_code, 404)
 
-        # read
-        interviewer_set = Interviewer.objects.filter(**test_dict)
+    def test_join_meeting(self):
+        # Create a todo object by calling the confirm API
+        data = {
+            "username": self.user.username,
+            "viewer": self.user.username,
+            "viewee": CustomUser.objects.get(pk = 2).username,
+            "difficulty": "H",
+            "datetime": "11/26/22 17:24:00"
+        }
+        self.client.force_authenticate(user=self.user)
+        url = reverse('confirm')
+        response = self.client.post(url, data, format='json').json()
+        todo_id = response['id']
 
-        for interviewer in interviewer_set.all():
-            self.assertEqual(interviewer.user.username, "carlo")
-            self.assertEqual(interviewer.evalForm.name, "Test response")
+        # Examine the returned interview object
+        url = reverse('join')
+        response = self.client.get(url, {"todo": todo_id}, format = 'json')
+        self.assertEqual(response.status_code, 200)
+        response_data = response.json()
+        self.assertEqual(response_data['viewer'], self.user.username)
+        self.assertEqual(response_data['viewee'], CustomUser.objects.get(pk = 2).username)
+        self.assertEqual(response_data['problems'][0]['difficulty'], 'H')
+        self.assertNotEqual(response_data['problems'][0]['url'], '')
+        self.assertNotEqual(response_data['room_link'], '')
+        self.assertNotEqual(response_data['ide_link'], '')
 
-        # update
-        update_dict = {'user': user2}
-
-        test_dict.update(update_dict)
-
-        interviewer_set.update(**update_dict)
-        interviewer_set = Interviewer.objects.filter(**test_dict)
-
-        for interviewer in interviewer_set.all():
-            self.assertEqual(interviewer.user.username, "david")
-            self.assertEqual(interviewer.evalForm.name, "Test response")
-
-        # delete
-
-        interviewer_set.delete()
-
-        interviewer_set = Interviewer.objects.filter(**test_dict)
-
-        self.assertEqual(interviewer_set.count(), 0)
-
-        user1.delete()
-        user2.delete()
-        response.delete()
-
-        evalform.delete()
-
-
-class InterviewModelTests(TestCase):
-
-    def test_crud_a_interview(self):
-
-        test_dict_response = {'name': "Test response", 'problem_solving': 2, 'communication': 3, 'coding_skill': 4, 'helpful': 1}
-
-        response = Response.objects.create(**test_dict_response)
-
-        user1 = CustomUser.objects.create(username='carlo')
-        user2 = CustomUser.objects.create(username='david')
-
-        test_dict_eval_ee = {'name': "Test response", 'rating': 2, 'comments': 'no comment', 'response': response, 'targer_user': user1, 'target_role': 'EE'}
-
-        test_dict_eval_er = {'name': "Test response", 'rating': 2, 'comments': 'no comment', 'response': response, 'targer_user': user2, 'target_role': 'ER'}
-
-        evalform_ee = EvalForm.objects.create(**test_dict_eval_ee)
-        evalform_er = EvalForm.objects.create(**test_dict_eval_er)
-
-        interviewer = Interviewer.objects.create(user=user1, evalForm=evalform_er)
-        interviewee = Interviewee.objects.create(user=user2, evalForm=evalform_ee)
-
-        test_dict = {'name': "Test interview", 'viewER': interviewer, 'viewEE': interviewee, 'date_and_time': '2022-11-04 14:30', 'room_link': 'www.google.com'}
-
-        # create
-        interview = Interview.objects.create(**test_dict)
-
-        self.assertEqual(interview.viewER.user.username, "carlo")
-        self.assertEqual(interview.viewEE.user.username, "david")
-        self.assertEqual(interview.name, "Test interview")
-
-        # read
-        interview_set = Interview.objects.filter(**test_dict)
-
-        for interview in interview_set.all():
-            self.assertEqual(interview.viewER.user.username, "carlo")
-            self.assertEqual(interview.viewEE.user.username, "david")
-            self.assertEqual(interview.name, "Test interview")
-
-        # update
-        update_dict = {'date_and_time': '2022-11-04 14:50'}
-
-        test_dict.update(update_dict)
-
-        interview_set.update(**update_dict)
-        interview_set = Interview.objects.filter(**test_dict)
-
-        for interview in interview_set.all():
-            self.assertEqual(interview.viewER.user.username, "carlo")
-            self.assertEqual(interview.viewEE.user.username, "david")
-            self.assertEqual(interview.name, "Test interview")
-            self.assertEqual(interview.date_and_time, '2022-11-04 14:50')
-
-        # delete
-
-        interview_set.delete()
-
-        interview_set = Interview.objects.filter(**test_dict)
-
-        self.assertEqual(interview_set.count(), 0)
-
-        interviewer.delete()
-        interviewee.delete()
-
-        user1.delete()
-        user2.delete()
-        response.delete()
-
-
-class ProblemModelTests(TestCase):
-
-    def test_crud_a_problem(self):
-
-        test_dict = {'problem_name': "Test problem", 'problem_url': 'www.google.com', 'problem_statement': 'this is a test problem', 'problem_difficulty': 'M'}
-
-        # create
-        problem = Problem.objects.create(**test_dict)
-
-        self.assertEqual(problem.problem_name, "Test problem")
-        self.assertEqual(problem.problem_url, "www.google.com")
-        self.assertEqual(problem.problem_statement, "this is a test problem")
-        self.assertEqual(problem.problem_difficulty, "M")
-
-        # read
-        problem_set = Problem.objects.filter(**test_dict)
-
-        for problem in problem_set.all():
-            self.assertEqual(problem.problem_name, "Test problem")
-            self.assertEqual(problem.problem_url, "www.google.com")
-            self.assertEqual(problem.problem_statement, "this is a test problem")
-            self.assertEqual(problem.problem_difficulty, "M")
-
-        # update
-        update_dict = {'problem_url': 'www.baidu.com', 'problem_difficulty': 'H'}
-
-        test_dict.update(update_dict)
-
-        problem_set.update(**update_dict)
-        problem_set = Problem.objects.filter(**test_dict)
-
-        for problem in problem_set.all():
-            self.assertEqual(problem.problem_name, "Test problem")
-            self.assertEqual(problem.problem_url, "www.baidu.com")
-            self.assertEqual(problem.problem_statement, "this is a test problem")
-            self.assertEqual(problem.problem_difficulty, "H")
-
-        # delete
-        problem_set.delete()
-
-        problem_set = Problem.objects.filter(**test_dict)
-
-        self.assertEqual(problem_set.count(), 0)
+    def test_invalid_request_to_join_meeting(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('join')
+        response = self.client.post(url, {}, format='json')
+        self.assertEqual(response.status_code, 404)

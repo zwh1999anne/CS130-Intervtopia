@@ -7,7 +7,7 @@ from django.utils.timezone import now
 class EvalForm(models.Model):
     name = models.CharField(max_length=100, default="")
     # questions = models.ManyToManyField(Question)
-    targer_user = models.ForeignKey(CustomUser, related_name='evalform', on_delete=models.CASCADE)
+    target_user = models.ForeignKey(CustomUser, related_name='evalform', on_delete=models.CASCADE)
     role_choices = [('ER', 'Interviewer'), ('EE', 'Interviewee')]
     target_role = models.CharField(max_length=2, choices=role_choices)
     time = models.DateTimeField(default=now)
