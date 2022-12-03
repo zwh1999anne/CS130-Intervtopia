@@ -17,13 +17,15 @@ import {
   Tooltip,
 } from "react-bootstrap";
 
-import toDos from "backend_data/to_do_list";
-import interviews_list from "backend_data/interviews_list";
+import { getTodos } from "backend_data/to_do_list";
+import { getInterviews } from "backend_data/interviews_list";
 import { getMatchInfo, matchConfirmed } from "backend_data/match_list";
-import service_link from "backend_data/external_service_link";
+import { getServiceLink} from "backend_data/external_service_link";
 import { getEvalForm, evalConfirmed } from "backend_data/evaluation_form";
-import default_preferences from "backend_data/default_preferences";
+import {getPreferenceInfo, current_user_id} from "backend_data/default_preferences";
 
+const toDos = getTodos(current_user_id);
+const interviews_list = getInterviews(current_user_id);
 let current_match = "random";
 let curr_info={id: "-1", name: " ", type: " ", time: " "}
 let curr_todo_id = toDos.length + 1;
@@ -77,7 +79,7 @@ function LauchInterviewModal(props) {
           Please confirm if you want to interview with {props.name} at the following time:
         </p>
         <p>
-        {default_preferences.available_day}, {default_preferences.available_time}
+        {props.day}, {props.time}
         </p>
       </Modal.Body>
       <Modal.Footer>
@@ -128,7 +130,8 @@ function AddMatchModal(props){
 }
 
 function ConfirmMatchModal(props){
-  const match_info = getMatchInfo(current_match);
+  const [match_info, setmatchInfo] = React.useState({});
+  getMatchInfo(current_match, props.name).then((value) => setmatchInfo(value));
   curr_info.name = match_info.name
   curr_info.id = {...curr_todo_id}
   curr_info.name = match_info.name
@@ -231,6 +234,7 @@ function EvaluationModal(props){
 }
 
 function JoinMeetingModal(props) {
+  var service_link = getServiceLink();
   return (
     <Modal
       {...props}
@@ -252,15 +256,15 @@ function JoinMeetingModal(props) {
           <tbody>
             <tr>
               <td>Question</td>
-              <td><a href={props.questionLink}  target="_blank">{props.questionLink}</a></td>
+              <td><a href={service_link.question}  target="_blank">{service_link.question}</a></td>
             </tr>
             <tr>
               <td>Chatting</td>
-              <td><a href={props.chattingLink}  target="_blank">{props.chattingLink}</a></td>
+              <td><a href={service_link.chatting}  target="_blank">{service_link.chatting}</a></td>
             </tr>
             <tr>
               <td>IDE</td>
-              <td><a href={props.IDELink}  target="_blank">{props.IDELink}</a></td>
+              <td><a href={service_link.IDE}  target="_blank">{service_link.IDE}</a></td>
             </tr>
           </tbody>
         </Table>
@@ -308,6 +312,10 @@ function Dashboard() {
   const [launchInterviewShow, setlaunchinterviewShow] = React.useState(false);
   const [interviewName, setinterviewName] = React.useState(" ");
 
+  const [preferences, setPreferences] = useState({});
+  getPreferenceInfo(current_user_id).then((value) => setPreferences(value));
+  var default_preferences = preferences;
+  
 
   return (
     <>
@@ -344,7 +352,6 @@ function Dashboard() {
                               <div className="text-left">
                                   <Button variant="primary" className="btn-fill mr-5" size="sm" onClick={() => { setjoinMeetingShow(true); setMeetingParName(element.name) }}>Join Meeting</Button>{' '}
                                   <JoinMeetingModal name={meetingParName} show={joinMeetingShow} time = {element.time} 
-                                  questionLink={service_link.question} chattingLink={service_link.chatting} IDELink={service_link.IDE} 
                                   onHide={() => setjoinMeetingShow(false)}
                                   completed = {() => {deleteTodo(element.id); addTodo({id: {...curr_todo_id}, name: element.name, type: "evaluation", time: element.time}); 
                                   addinterview({id: {...curr_interview_id}, name: element.name, time: element.time, evaluated: "No"}); 
@@ -441,7 +448,7 @@ function Dashboard() {
               <AddMatchModal show={addMatchModalShow} 
               onHide={() => setaddMatchModalShow(false)} 
               confirmed={() => {setaddMatchModalShow(false); setconfirmMatchModalShow(true)}}></AddMatchModal>
-              <ConfirmMatchModal show={confirmMatchModalShow}
+              <ConfirmMatchModal show={confirmMatchModalShow} name={default_preferences.username}
               onHide={() => setconfirmMatchModalShow(false)}
               confirmed = {() => {setconfirmMatchModalShow(false); addTodo(curr_info);curr_todo_id += 1}} ></ConfirmMatchModal>
               </Card.Body>
@@ -474,7 +481,9 @@ function Dashboard() {
                         <Button variant="primary" className="btn-fill mr-3" size="sm" onClick={() => {setlaunchinterviewShow(true); setinterviewName(element.name)}}>
                         Interview Again
                         </Button>
-                        <LauchInterviewModal name={interviewName} show={launchInterviewShow} onHide={() => setlaunchinterviewShow(false)}></LauchInterviewModal>
+                        <LauchInterviewModal name={interviewName} show={launchInterviewShow} 
+                        day = {default_preferences.available_day} time = {default_preferences.available_time}
+                        onHide={() => setlaunchinterviewShow(false)}></LauchInterviewModal>
                         <Button variant="primary" size="sm"  onClick={() => {setaddFriendModalShow(true); setFriendModalName(element.name)}}>Add Friend</Button>
                         <AddFriendModal name = {FriendModalName} show={addFriendModalShow} onHide={() => setaddFriendModalShow(false)}></AddFriendModal>
                         </div>
