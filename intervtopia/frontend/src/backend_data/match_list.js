@@ -12,7 +12,7 @@ const default_match_info = {
 }
 
 export async function getMatchInfo(matchType, username){
-    let session_url = "http://127.0.0.1:8000/matching/?type="+matchType+"&user="+username;
+    let session_url = "http://127.0.0.1:8000/matching/?type=history&user="+username;
 
     async function getUserMatch(){
       const { data } = await axios.get(session_url, {
