@@ -14,7 +14,7 @@ import {
   Modal
 } from "react-bootstrap";
 
-import default_preferences from "backend_data/default_preferences";
+import {current_user_id, getPreferenceInfo} from "backend_data/default_preferences";
 
 function UpdateConfirmModal(props) {
   return (
@@ -41,7 +41,13 @@ function UpdateConfirmModal(props) {
 
 function Preferences() {
 
-  const [UpdateConfirmModalShow, setUpdateConfirmModalShow] = React.useState(false);
+  const [UpdateConfirmModalShow, setUpdateConfirmModalShow] = useState(false);
+
+  const [preferences, setPreferences] = useState({});
+
+  getPreferenceInfo(current_user_id).then((value) => setPreferences(value));
+
+  var default_preferences = preferences;
 
   return (
     <>
@@ -95,8 +101,8 @@ function Preferences() {
                         <br />
                         <Form.Select
                           defaultValue={default_preferences.job_role} className="w-100 form-control">
-                          <option value="software engineer">Software Engineer</option>
-                          <option value="data scientist">Data Scientist</option>
+                          <option value="Software Engineer">Software Engineer</option>
+                          <option value="Data Scientist">Data Scientist</option>
                         </Form.Select>
                       </Form.Group>
                     </Col>

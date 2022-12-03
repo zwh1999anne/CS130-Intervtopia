@@ -17,7 +17,10 @@ import {
   Tooltip,
 } from "react-bootstrap";
 
-import messages_list from "backend_data/messages_list";
+import {getMessages} from "backend_data/messages_list";
+import {current_user_id} from "backend_data/default_preferences";
+
+const messages_list = getMessages(current_user_id);
 
 function ReplyMessageModal(props) {
   return (
