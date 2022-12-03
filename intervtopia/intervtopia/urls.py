@@ -29,6 +29,7 @@ from users.views import update_preference, match, UserViewSet, ToDoViewSet, Hist
 from friend_and_message.views import FriendshipViewSet, MessageViewSet
 from evaluation.views import EvalFormViewSet, QuestionViewSet, evaluate, submit
 from interview.views import InterviewViewSet, confirm, complete, join_meeting
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
 router = routers.DefaultRouter()
 router.register(r'users', UserViewSet)
@@ -53,5 +54,10 @@ urlpatterns = [
     path('complete/', complete, name='complete'),
     path('join/', join_meeting, name='join'),
     path('evaluate/', evaluate, name='evaluate'),
-    path('submit/', submit, name='submit')
+    path('submit/', submit, name='submit'),
+    # Schema
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    # Optional UI:
+    path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 ]
