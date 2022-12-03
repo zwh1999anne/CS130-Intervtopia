@@ -1,4 +1,4 @@
-const invitations = [
+const default_invitations = [
     {
       id: "1",
       name: "Dicky C",
@@ -7,4 +7,7 @@ const invitations = [
     }
   ];
 
-  export default invitations;
+export function getInvitations(user_id){
+    return default_invitations;
+};
+
