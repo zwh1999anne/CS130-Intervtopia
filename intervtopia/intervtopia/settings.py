@@ -52,8 +52,8 @@ REST_FRAMEWORK = {
 }
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Your Project API',
-    'DESCRIPTION': 'Your project description',
+    'TITLE': 'Intervtopia API document',
+    'DESCRIPTION': 'The best in this galaxy mock interview website',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
     # use side car [offline mode]
