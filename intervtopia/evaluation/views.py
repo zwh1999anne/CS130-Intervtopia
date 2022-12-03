@@ -9,6 +9,7 @@ from users.models import ToDoItem
 from rest_framework import viewsets
 from rest_framework import permissions
 from rest_framework.parsers import JSONParser
+from rest_framework.decorators import action
 # Create your views here.
 
 
@@ -29,6 +30,86 @@ class EvalFormViewSet(viewsets.ModelViewSet):
     serializer_class = EvalFormSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    @action(detail=True)
+    def evaluate(request):
+        '''
+        This is the handler function on clicking the evaluate button
+        This function handles a HTTP GET request with parameter: {"todo": "id"}
+        This function will create a new evaluation form object with predefined questions
+        This function then return the created evaluation form in JSON format
+        '''
+        if request.method == 'GET':
+            id = request.GET['todo']
+            todo = ToDoItem.objects.get(pk = id)
+            assert(todo.type == 'E')
+            role_lut = {
+                'ER': 'interviewer',
+                'EE': 'interviewee'
+            }
+            evalform = EvalForm.objects.create(
+                name = todo.owner.username + '\'s evaluation to ' + todo.name + ' as a '+ role_lut[todo.role],
+                target_user = todo.owner,
+                target_role = todo.role,
+                comments = ""
+            )
+            todo.link = reverse('evalform-detail', args=[evalform.pk])
+            # evalform.target_user = todo.owner
+            # evalform.save()
+            if todo.role == 'ER':
+                question_list = [
+                    "How was the interviewee's problem-solving skill?",
+                    "How was the interviewee's communication?",
+                    "How was the interviewee's coding skill?",
+                    "How was the interview over all?"
+                ]
+                
+            elif todo.role == 'EE':
+                question_list = [
+                    "How was the interviewer's description of problem?",
+                    "How was the interviewer's ability to create follow up questions?",
+                    "How was the interviewer's feedback?",
+                    "How was the interview over all?"
+                ]
+            for i in range(len(question_list)):
+                Question.objects.create(
+                    question_text = question_list[i],
+                    target = 'ER',
+                    question_ranking = i,
+                    score = 0,
+                    evalform = evalform
+                )
+            serializer = EvalFormSerializer(evalform, context={'request': request})
+            return JsonResponse(serializer.data, safe = False)
+        else:
+            return HttpResponseNotFound()
+
+        
+    @action(detail=True, methods=['post'])
+    def submit(request):
+        '''
+        TODO: need parameters: todo and history
+        '''
+        if request.method == 'POST':
+            data = JSONParser().parse(request)
+            form_id = data['form']
+            question_data = data['questions']
+            compressed_question_data = {}
+            for q in question_data:
+                compressed_question_data[q['id']] = q['score']
+            comments = data['comments']
+            form = EvalForm.objects.get(pk = form_id)
+            qs = form.questions.all()
+            for q in qs:
+                if q.pk in compressed_question_data.keys():
+                    q.score = compressed_question_data[q.pk]
+                    q.save()
+            form.comments = comments
+            form.save()
+            serializer = EvalFormSerializer(form, context={'request': request})
+            return JsonResponse(serializer.data, safe = False)
+        else:
+            return HttpResponseNotFound()
+
 
 class QuestionViewSet(viewsets.ModelViewSet):
     """
@@ -39,84 +120,8 @@ class QuestionViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
 
-@csrf_exempt
-def evaluate(request):
-    '''
-    This is the handler function on clicking the evaluate button
-    This function handles a HTTP GET request with parameter: {"todo": "id"}
-    This function will create a new evaluation form object with predefined questions
-    This function then return the created evaluation form in JSON format
-    '''
-    if request.method == 'GET':
-        id = request.GET['todo']
-        todo = ToDoItem.objects.get(pk = id)
-        assert(todo.type == 'E')
-        role_lut = {
-            'ER': 'interviewer',
-            'EE': 'interviewee'
-        }
-        evalform = EvalForm.objects.create(
-            name = todo.owner.username + '\'s evaluation to ' + todo.name + ' as a '+ role_lut[todo.role],
-            target_user = todo.owner,
-            target_role = todo.role,
-            comments = ""
-        )
-        todo.link = reverse('evalform-detail', args=[evalform.pk])
-        # evalform.target_user = todo.owner
-        # evalform.save()
-        if todo.role == 'ER':
-            question_list = [
-                "How was the interviewee's problem-solving skill?",
-                "How was the interviewee's communication?",
-                "How was the interviewee's coding skill?",
-                "How was the interview over all?"
-            ]
-            
-        elif todo.role == 'EE':
-            question_list = [
-                "How was the interviewer's description of problem?",
-                "How was the interviewer's ability to create follow up questions?",
-                "How was the interviewer's feedback?",
-                "How was the interview over all?"
-            ]
-        for i in range(len(question_list)):
-            Question.objects.create(
-                question_text = question_list[i],
-                target = 'ER',
-                question_ranking = i,
-                score = 0,
-                evalform = evalform
-            )
-        serializer = EvalFormSerializer(evalform, context={'request': request})
-        return JsonResponse(serializer.data, safe = False)
-    else:
-        return HttpResponseNotFound()
-    
-@csrf_exempt
-def submit(request):
-    '''
-    TODO: need parameters: todo and history
-    '''
-    if request.method == 'POST':
-        data = JSONParser().parse(request)
-        form_id = data['form']
-        question_data = data['questions']
-        compressed_question_data = {}
-        for q in question_data:
-            compressed_question_data[q['id']] = q['score']
-        comments = data['comments']
-        form = EvalForm.objects.get(pk = form_id)
-        qs = form.questions.all()
-        for q in qs:
-            if q.pk in compressed_question_data.keys():
-                q.score = compressed_question_data[q.pk]
-                q.save()
-        form.comments = comments
-        form.save()
-        serializer = EvalFormSerializer(form, context={'request': request})
-        return JsonResponse(serializer.data, safe = False)
-    else:
-        return HttpResponseNotFound()
+
+
 # class ResponseViewSet(viewsets.ModelViewSet):
 #     """
 #     API endpoint that allows users to be viewed or edited.
