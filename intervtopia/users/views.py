@@ -19,7 +19,7 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     @action(detail=True)
-    def match(request):
+    def match(self,request):
         usr = CustomUser.objects.get(username = request.GET['user'])
         # print(request.GET['type'])
         if request.GET['type'] == "random":
@@ -39,7 +39,7 @@ class UserViewSet(viewsets.ModelViewSet):
         return JsonResponse(data, safe=False)
 
     @action(detail=True, methods=['post'])
-    def update_preference(request):
+    def update_preference(self,request):
         '''
         HTTP POST Request 
         Request Body:

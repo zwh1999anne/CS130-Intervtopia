@@ -94,7 +94,7 @@ class InterviewViewSet(viewsets.ModelViewSet):
             return HttpResponseNotFound()
         
     @action(detail=True)
-    def complete(request):
+    def complete(self, request):
         '''
         This is the handler function when user click button complete
         after the meeting is completed.
@@ -124,7 +124,7 @@ class InterviewViewSet(viewsets.ModelViewSet):
             return HttpResponseNotFound()
 
     @action(detail=True)
-    def join_meeting(request):
+    def join_meeting(self, request):
         '''
         This is the handler function when user click the button join meeting
         This function take a input parameter: {"todo": id}
