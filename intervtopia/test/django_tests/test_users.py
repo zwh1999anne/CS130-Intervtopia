@@ -1,276 +1,246 @@
 from django.test import TestCase
-from users.models import Language, Company, Position, Calendar, CustomUser, RandomMatching, PreferenceMatching
+from users.models import Language, Company, Position, Availability, CustomUser, RandomMatching, PreferenceMatching, HistoryMatching
+import random
+import string
+from users.serializers import UserSerializer
+from datetime import datetime
+from django.http import JsonResponse
+from users.views import UserViewSet
+from django.urls import reverse
+from rest_framework.parsers import JSONParser
+
+from rest_framework.test import APIClient, APITestCase
+
 # Create your tests here.
-
-
-class TestLanguage(TestCase):
-    def test_add(self):
-        # Test insertion: valid input
-        self.assertEqual(Language.add('TestLang'), Language.objects.get(lang_name='TestLang'))
-        # Test insertion: invalid input
-        self.assertRaisesMessage(ValueError, "input cannot be empty", Language.add(''))
-        self.assertWarnsMessage(UserWarning, "This language has not been seen before, please make sure it is valid", Language.add('anvnoadnvandoanigfnaoi'))
-
-    def test_remove(self):
-        # Test remove a language from the database
-        Language.add('TestLang')
-        Language.remove('TestLang')
-        self.assertEqual(len(Language.objects.filter(lang_name='TestLang')), 0)
-        # If the input is empty raise an error
-        self.assertRaisesMessage(ValueError, "input cannot be empty", Language.remove(''))
-        # If the input is not in the database, raise an error
-        self.assertRaisesMessage(ValueError, 'TestLang is not in the database', Language.remove('TestLang'))
-
-    def test_get(self):
-        Language.add('TestLang')
-        self.assertEqual(Language.get('TestLang').lang_name, 'TestLang')
-        self.assertRaisesMessage(ValueError, "input cannot be empty", Language.get(''))
-        Language.remove('TestLang')
-        self.assertRaisesMessage(ValueError, 'TestLang is not in the database', Language.get('TestLang'))
-
-
-class TestCompany(TestCase):
-    testCompany = 'TestCompany'
-
-    def test_add(self):
-        # Test insertion: valid input
-        self.assertEqual(Company.add(self.testCompany), Company.objects.get(company_name=self.testCompany))
-        # Test insertion: invalid input
-        self.assertRaisesMessage(ValueError, "input cannot be empty", Company.add(''))
-        self.assertWarnsMessage(UserWarning, "This company has not been seen before, please make sure it is valid", Company.add('anvnoadnvandoanigfnaoi'))
-
-    def test_remove(self):
-        # Test remove a company from the database
-        Company.add(self.testCompany)
-        Company.remove(self.testCompany)
-        self.assertEqual(len(Company.objects.filter(company_name=self.testCompany)), 0)
-        # If the input is empty raise an error
-        self.assertRaisesMessage(ValueError, "input cannot be empty", Company.remove(''))
-        # If the input is not in the database, raise an error
-        self.assertRaisesMessage(ValueError, 'TestCompany is not in the database', Company.remove(self.testCompany))
-
-    def test_get(self):
-        Company.add(self.testCompany)
-        self.assertEqual(Company.get(self.testCompany).company_name, self.testCompany)
-        self.assertRaisesMessage(ValueError, "input cannot be empty", Company.get(''))
-        Company.remove(self.testCompany)
-        self.assertRaisesMessage(ValueError, 'TestCompany is not in the database', Company.get(self.testCompany))
-
-    def test_update(self):
-        Company.add(self.testCompany)
-        self.assertEqual(Company.update(self.testCompany, 'NewTestCompany').company_name, 'NewTestCompany')
-        self.assertRaisesMessage(ValueError, "input cannot be empty", Company.update(self.testCompany, ''))
-        self.assertRaisesMessage(ValueError, "input cannot be empty", Company.update('', self.testCompany))
-        self.assertRaisesMessage(ValueError, "input cannot be empty", Company.update('', ''))
-        self.assertRaisesMessage(ValueError, "RandomTestCompany is not in the database", Company.update('RandomTestCompany', self.testCompany))
-        Company.remove(self.testCompany)
-
-
-class TestPosition(TestCase):
-    testPosition = 'TestPosition'
-
-    def test_add(self):
-        # Test insertion: valid input
-        self.assertEqual(Position.add(self.testPosition), Position.objects.get(position_name=self.testPosition))
-        # Test insertion: invalid input
-        self.assertRaisesMessage(ValueError, "input cannot be empty", Position.add(''))
-        self.assertWarnsMessage(UserWarning, "This position has not been seen before, please make sure it is valid", Position.add('anvnoadnvandoanigfnaoi'))
-
-    def test_remove(self):
-        # Test remove a company from the database
-        Position.add(self.testPosition)
-        Position.remove(self.testPosition)
-        self.assertEqual(len(Position.objects.filter(position_name=self.testPosition)), 0)
-        # If the input is empty raise an error
-        self.assertRaisesMessage(ValueError, "input cannot be empty", Position.remove(''))
-        # If the input is not in the database, raise an error
-        self.assertRaisesMessage(ValueError, 'TestPosition is not in the database', Position.remove(self.testPosition))
-
-    def test_get(self):
-        Position.add(self.testPosition)
-        self.assertEqual(Position.get(self.testPosition).position_name, self.testPosition)
-        self.assertRaisesMessage(ValueError, "input cannot be empty", Position.get(''))
-        Position.remove(self.testPosition)
-        self.assertRaisesMessage(ValueError, 'TestPosition is not in the database', Position.get(self.testPosition))
-
-    def test_update(self):
-        Position.add(self.testPosition)
-        self.assertEqual(Position.update(self.testPosition, 'NewTestPosition').position_name, 'NewTestPosition')
-        self.assertRaisesMessage(ValueError, "input cannot be empty", Position.update(self.testPosition, ''))
-        self.assertRaisesMessage(ValueError, "input cannot be empty", Position.update('', self.testPosition))
-        self.assertRaisesMessage(ValueError, "input cannot be empty", Position.update('', ''))
-        self.assertRaisesMessage(ValueError, "RandomTestPosition is not in the database", Position.update('RandomTestPosition', self.testPosition))
-
-
-class TestCalendar(TestCase):
-    testCalendarURL = 'https://calendar.google.com/calendar/u/0/r'
-
-    def test_add(self):
-        # Test insertion: valid input
-        self.assertEqual(Calendar.add(self.testCalendarURL), Calendar.objects.get(ext_url=self.testCalendarURL))
-        # Test insertion: invalid input
-        self.assertRaisesMessage(ValueError, "input cannot be empty", Calendar.add(''))
-
-    def test_remove(self):
-        Calendar.add(self.testCalendarURL)
-        Calendar.remove(self.testCalendarURL)
-        self.assertEqual(len(Calendar.objects.filter(ext_url=self.testCalendarURL)), 0)
-        # If the input is empty raise an error
-        self.assertRaisesMessage(ValueError, "input cannot be empty", Calendar.remove(''))
-        # If the input is not in the database, raise an error
-        self.assertRaisesMessage(ValueError, 'TestLang is not in the database')
-
-    def test_get(self):
-        Calendar.add(self.testCalendarURL)
-        self.assertEqual(Calendar.get(self.testCalendarURL).ext_url, self.testCalendarURL)
-        self.assertRaisesMessage(ValueError, "input cannot be empty", Calendar.get(''))
-        Calendar.remove(self.testCalendarURL)
-
-    def test_update(self):
-        Calendar.add(self.testCalendarURL)
-        self.assertEqual(Position.update(self.testCalendarURL, 'NewTestURL').ext_url, 'NewTestURL')
-        self.assertRaisesMessage(ValueError, "input cannot be empty", Calendar.update(self.testCalendarURL, ''))
-        self.assertRaisesMessage(ValueError, "input cannot be empty", Calendar.update('', self.testCalendarURL))
-        self.assertRaisesMessage(ValueError, "input cannot be empty", Calendar.update('', ''))
-        self.assertRaisesMessage(ValueError, "RondamTestURL is not in the database", Calendar.update('RandomTestPosition', self.testCalendarURL))
-
+def random_string_generator(str_size, allowed_chars):
+    return ''.join(random.choice(allowed_chars) for x in range(str_size))
+ 
+username_chars = string.ascii_letters
+password_chars = string.ascii_letters + string.punctuation
 
 class TestCustomUser(TestCase):
-    user = CustomUser()
+    # Test create a user
+    def setUp(self):
+        uname = random_string_generator(10, username_chars)
+        pwd = random_string_generator(15, password_chars)
+        if len(CustomUser.objects.filter(username = uname)) == 0:
+            self.user = CustomUser.objects.create(username = uname, password = pwd)
+            self.assertEqual(self.user.password, pwd)
+        else:
+            self.user = CustomUser.objects.get(username = uname)
+        self.assertEqual(self.user.username, uname)
 
-    def test_create_user_base(self):
-        '''
-        Test function: create_user_base
-        Testcases:
-            1. the function should create a CustomUser object, store it in the database and return the object
-            2. the function should take care of invalid inputs
-        '''
-        user = CustomUser.create_user_base(username='Test user', password='123456', email='test@intervtopia.com')
-        self.assertEqual(user.username, 'Test user')
-        self.assertEqual(user.password, '123456')
-        self.assertEqual(user.email, 'test@intervtopia.com')
-        self.assertRaises(ValueError, CustomUser.create_user_base(username='', password='', email=''))
-        self.assertRaisesMessage(ValueError, "Username Test user is taken, pick another name", CustomUser.create_user_base(username='Test user', password='abdvajdiavna',
-                                                                                                                           email='test@intervtopia.com'))
+        self.comp_name = random_string_generator(6, string.ascii_letters)
+        self.comp_name_2 = random_string_generator(5, string.ascii_letters)
 
-    def test_add_target_company(self):
-        '''
-        Test function: add_target_company
-        Testcases:
-            1. the function should return 0 if the input is a valid company name
-            2. the function should return -1 if the input is an empty string
-            3. the function should raise a ValueError if the input is an empty string
-            4. the function should raise a UserWarning if the input is a company has not been seemed before, 
-                as the user may enter some random string that is not a valid company name. 
-                It cannot be an error, as there may be programming languages that has not been stored in our database
-        '''
-        self.assertEqual(self.user.add_target_company('Google'), 0)
-        self.assertTrue(Company.get('Google') in self.user.target_companys)
-        self.assertNotEqual(self.user.add_target_company(''), 0)
+        self.lang_name = random_string_generator(6, string.ascii_letters)
+        self.lang_name_2 = random_string_generator(5, string.ascii_letters)
 
-    def test_remove_target_company(self):
-        '''
-        Test function: add_target_company
-        Testcases:
-            1. the function should return 0 if the input is a valid company name
-            2. the function should return -1 if the input is an empty string
-            3. the function should raise a ValueError if the input is an empty string
-            4. the function should raise a UserWarning if the input is a language has not been seemed before, 
-                as the user may enter some random string that is not a valid programming language. 
-                It cannot be an error, as there may be programming languages that has not been stored in our database
-        '''
-        self.user.add_target_company('Google')
-        self.assertEqual(self.user.remove_target_company('Google'), 0)
-        self.assertNotEqual(self.user.remove_target_company(''), 0)
-        self.assertRaisesMessage(ValueError, 'Invalid input: input is empty', self.user.remove_target_company(''))
-        self.assertRaisesMessage(ValueError, 'Invalid input: Google is not in the list', self.user.remove_target_company('Google'))
+        self.pos_name = random_string_generator(20, string.ascii_letters)
+        self.available_day = 'Mon'
+        self.available_start_time = "12:00"
+        self.available_end_time = "14:00"
 
-    def test_add_target_position(self):
-        '''
-        Test function: add_target_position
-        Testcases:
-            1. the function should return 0 if the input is a valid company name
-            2. the function should return -1 if the input is an empty string
-            3. the function should raise a ValueError if the input is an empty string
-            4. the function should raise a UserWarning if the input is a language has not been seemed before, 
-                as the user may enter some random string that is not a valid programming language. 
-                It cannot be an error, as there may be programming languages that has not been stored in our database
-        '''
-        self.assertEqual(self.user.add_target_position('Software Engineer'), 0)
-        self.assertTrue(Position.get('Software Engineer') in self.user.target_positions)
-        self.assertNotEqual(self.user.add_target_position(''), 0)
+        self.additional_day = 'Fri'
+        self.additional_start_time = '17:00'
+        self.additional_end_time = '19:00'
 
-    def test_remove_target_position(self):
-        self.user.add_target_position('Software Engineer')
-        self.assertEqual(self.user.remove_target_position('Software Engineer'), 0)
-        self.assertNotEqual(self.user.remove_target_position(''), 0)
-        self.assertRaisesMessage(ValueError, 'Invalid input: input is empty', self.user.remove_target_position(''))
-        self.assertRaisesMessage(ValueError, 'Invalid input: Software Engineer is not in the list', self.user.remove_target_position('Software Engineer'))
+        self.difficulty = 'M'
+        self.role = 'ER'
+        self.matching = 'preference'
+        
+        self.rating = 0.5
 
-    def test_add_preferred_language(self):
-        '''
-        Test function: add_preferred_language
-        Testcases:
-            1. the function should return 0 if the input is a valid programming language
-            2. the function should return False if the input is an empty string
-            3. the function should raise a ValueError if the input is an empty string
-            4. the function should raise a UserWarning if the input is a language has not been seemed before, 
-                as the user may enter some random string that is not a valid programming language. 
-                It cannot be an error, as there may be programming languages that has not been stored in our database
-        '''
-        self.assertEqual(self.user.add_preferred_language('Python'), 0)
-        self.assertTrue(Language.get('Python') in self.user.preferred_languages)
-        self.assertNotEqual(self.user.add_preferred_language(''), 0)
+        self.client = APIClient()
+        
 
-    def test_remove_preferred_language(self):
-        self.user.add_preferred_language('Python')
-        self.assertEqual(self.user.add_preferred_language('Python'), 0)
-        self.assertNotEqual(self.user.add_preferred_language(''), 0)
-        self.assertRaisesMessage(ValueError, 'Invalid input: input is empty', self.user.add_preferred_language(''))
-        self.assertRaisesMessage(ValueError, 'Invalid input: Python is not in the list', self.user.add_preferred_language('Python'))
+    def test_create_user(self):
+        self.assertEqual(self.user.first_name, '')
+        self.assertEqual(self.user.last_name, '')
+        self.assertQuerysetEqual(self.user.target_companys.all(), [])
+        self.assertQuerysetEqual(self.user.target_positions.all(), [])
+        self.assertQuerysetEqual(self.user.preferred_languages.all(), [])
+        self.assertQuerysetEqual(self.user.availability.all(), [])
+        self.assertEqual(self.user.preferred_difficulty, '')
+        self.assertEqual(self.user.education, '')
+        self.assertEqual(self.user.matchingStrategy, 'random')
+        self.assertEqual(self.user.rating, 0.0)
 
-    def test_set_preferred_difficulty(self):
-        self.assertEqual(self.user.set_preferred_difficulty('Easy'), 0)
-        self.assertTrue(self.user.preferred_difficulty == 'Easy')
-        self.assertEqual(self.user.set_preferred_difficulty('Medium'), 0)
-        self.assertTrue(self.user.preferred_difficulty == 'Medium')
-        self.assertEqual(self.user.set_preferred_difficulty('Hard'), 0)
-        self.assertTrue(self.user.preferred_difficulty == 'Hard')
-        self.assertRaisesMessage(ValueError, 'Invalid input', self.user.set_preferred_difficulty('Very Hard'))
+    def test_set_target_company(self):
+        comp, created = Company.objects.get_or_create(company_name = self.comp_name)
+        self.user.target_companys.add(comp)
+        self.assertQuerysetEqual(self.user.target_companys.all(), [comp])
+        comp_2, created = Company.objects.get_or_create(company_name = self.comp_name_2)
+        self.user.target_companys.add(comp_2)
+        self.assertQuerysetEqual(self.user.target_companys.all(), [comp, comp_2], ordered=False)
 
-    def test_history(self):
-        '''
-        Test functions: update_history, get_historic_meetings
-        '''
-        self.assertEqual(self.user.update_history({"new meeting 1": "Meeting 1 info"}), 0)
-        self.assertEqual(self.user.update_history({"new meeting 2": "Meeting 2 info"}), 0)
-        self.assertDictEqual({"new meeting 1": "Meeting 1 info", "new meeting 2": "Meeting 2 info"}, self.user.get_historic_meetings())
+    def test_set_preferred_language(self):
+        lang, created = Language.objects.get_or_create(lang_name = self.lang_name)
+        self.user.preferred_languages.add(lang)
+        self.assertQuerysetEqual(self.user.preferred_languages.all(), [lang])
+        lang_2, created = Language.objects.get_or_create(lang_name = self.lang_name_2)
+        self.user.preferred_languages.add(lang_2)
+        self.assertQuerysetEqual(self.user.preferred_languages.all(), [lang, lang_2], ordered=False)
 
-    def test_set_calendar(self):
-        '''
-        Test function: set_calendar
-        '''
-        self.assertEqual(self.user.set_calendar('https://calendar.google.com/calendar/u/0/r'), 0)
-        self.assertEqual(self.user.calendar, 'https://calendar.google.com/calendar/u/0/r')
+    def test_set_target_position(self):
+        pos, created = Position.objects.get_or_create(position_name = self.pos_name)
+        self.user.target_positions.add(pos)
+        self.assertQuerysetEqual(self.user.target_positions.all(), [pos])
 
-    def test_set_rating(self):
-        self.assertEqual(self.user.set_rating(3.4), 0)
-        self.assertRaisesMessage(ValueError, "Invalid input: the rating should be in range [0, 5]", self.user.set_rating(-2.0))
-        self.assertRaisesMessage(ValueError, "Invalid input: the rating should be in range [0, 5]", self.user.set_rating(7.2))
+    def test_set_availability(self):
+        st = datetime.strptime(self.available_start_time, "%H:%M").time()
+        et = datetime.strptime(self.available_end_time, "%H:%M").time()
+        avai_1, created = Availability.objects.get_or_create(day = self.available_day, start_time = st, end_time = et)
+        self.user.availability.add(avai_1)
+        self.assertQuerysetEqual(self.user.availability.all(), [avai_1])
 
-    def set_matching_strategy(self):
-        self.assertEqual(self.user.set_matching_strategy('random'), 0)
-        self.assertEqual(self.user.matchingStrategy, RandomMatching())
-        self.assertEqual(self.user.set_matching_strategy('preference'), 0)
-        self.assertEqual(self.user.matchingStrategy, PreferenceMatching())
-        self.assertRaisesMessage(ValueError, 'Invalid input', self.user.set_matching_strategy('anjdvanivoa'))
+        st = datetime.strptime(self.additional_start_time, "%H:%M").time()
+        et = datetime.strptime(self.additional_end_time, "%H:%M").time()
+        avai_2, created = Availability.objects.get_or_create(day = self.additional_day, start_time = st, end_time = et)
+        self.user.availability.add(avai_2)
+        self.assertQuerysetEqual(self.user.availability.all(), [avai_1, avai_2], ordered=False)
+
+    def test_set_difficulty_role_matching_strategy_rating(self):
+        self.user.preferred_difficulty = self.difficulty
+        self.user.matchingStrategy = self.matching
+        self.user.preferred_role = self.role
+        self.user.rating = self.rating
+        self.user.save()
+        self.assertEqual(self.user.preferred_difficulty, self.difficulty)
+        self.assertEqual(self.user.matchingStrategy, self.matching)
+        self.assertEqual(self.user.preferred_role, self.role)
+        self.assertEqual(self.user.rating, self.rating)
+
+class TestUserAPI(APITestCase):
+
+    def setUp(self):
+        uname = random_string_generator(10, username_chars)
+        pwd = random_string_generator(15, password_chars)
+        if len(CustomUser.objects.filter(username = uname)) == 0:
+            self.user = CustomUser.objects.create(username = uname, password = pwd)
+            self.assertEqual(self.user.password, pwd)
+        else:
+            self.user = CustomUser.objects.get(username = uname)
+        self.assertEqual(self.user.username, uname)
 
 
-class TestMatchingStrategy(TestCase):
-    user1 = CustomUser()
+    def test_update_preference(self):
+        data = {
+            "username":self.user.username,
+            "email":"test@example.com",
+            "school":"UCLA Computer Science",
+            "job_role":"software engineer",
+            "interview_role":"B",
+            "first_language":"C++",
+            "second_language":"Python",
+            "desired_difficulty":"H",
+            "available_day":"Tue",
+            "available_time":"10:00 - 11:00",
+            "additional_available_day":"Thu",
+            "additional_available_time":"14:00 - 15:00"
+        }
 
-    def test_get_pair(self):
-        # The get_pair function should never return the user object itself
-        self.user1.set_matching_strategy('random')
-        self.assertNotEqual(self.user1.matchingStrategy.getPair(user=self.user1), self.user1)
-        self.assertNotEqual(PreferenceMatching.getPair(user=self.user1), self.user1)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('preference')
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(CustomUser.objects.count(), 1)
+
+        updated_user = CustomUser.objects.get(pk = self.user.pk)
+        self.assertEqual(updated_user.email, "test@example.com")
+        self.assertEqual(updated_user.education, "UCLA Computer Science")
+        self.assertEqual(len(updated_user.target_positions.all()), 1)
+        self.assertEqual(updated_user.target_positions.all()[0].position_name, "Software engineer")
+        self.assertEqual(updated_user.preferred_role, 'B')
+        self.assertQuerysetEqual(updated_user.preferred_languages.all(), [Language.objects.get(lang_name='C++'), Language.objects.get(lang_name='Python')], ordered=False)
+        self.assertEqual(updated_user.preferred_difficulty, 'H')
+
+        
+        st = datetime.strptime("10:00", "%H:%M").time()
+        et = datetime.strptime("11:00", "%H:%M").time()
+        avai_1, _ = Availability.objects.get_or_create(day = 'Tue', start_time = st, end_time = et)
+
+        st = datetime.strptime("14:00", "%H:%M").time()
+        et = datetime.strptime("15:00", "%H:%M").time()
+        avai_2, _ = Availability.objects.get_or_create(day = 'Thu', start_time = st, end_time = et)
+        self.assertQuerysetEqual(updated_user.availability.all(), [avai_1, avai_2], ordered=False)
+        
+class TestMatching(APITestCase):
+
+    def setUp(self):
+        company_list = ["Google", "Amazon", "Meta", "Apple", "Microsoft"]
+        position_list = ["Software Engineer", "Software Intern", "Product Manager", "Software Specialist"]
+        language_list = ["Python", "C++", "C#", "Java", "JavaScript", "PHP"]
+        role_list = ['B', 'ER', 'EE']
+        difficulty_list = ['E', 'M', 'H']
+        day_list = ['Mon',
+            'Tue',
+            'Wed',
+            'Thu',
+            'Fri',
+            'Sat',
+            'Sun'
+        ]
+        time_list = ["{}:00".format(hour) for hour in range(0, 24) ]
+
+        for i in range(10):
+            uname = random_string_generator(10, username_chars)
+            pwd = random_string_generator(15, password_chars)
+            u = CustomUser.objects.create(username = uname, password = pwd)
+            u.add_target_company(random.choice(company_list))
+            u.add_target_position(random.choice(position_list))
+            u.add_preferred_language(random.choice(language_list))
+            u.set_preferred_role(random.choice(role_list))
+            u.set_preferred_difficulty(random.choice(difficulty_list))
+            selected_time_index =random.randint(0, 22)
+            u.add_availability(random.choice(day_list), time_list[selected_time_index], time_list[selected_time_index+1])
+            u.save_changes()
+
+        self.assertEqual(len(CustomUser.objects.all()), 10)
+        self.user = CustomUser.objects.get(pk=1)
+
+    def test_random_matching(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('matching')
+        response = self.client.get(url, {'type': 'random', 'user': self.user.username}, format='json')
+        self.assertEqual(response.status_code, 200)
+        self.assertNotEqual(response.json()['name'], self.user.username)
+
+    def test_preference_matching(self):
+        # Create a perfect matching profile
+        uname = random_string_generator(10, username_chars)
+        pwd = random_string_generator(15, password_chars)
+        u = CustomUser.objects.create(username = uname, password = pwd)
+        u.add_target_company(self.user.target_companys.all()[0].company_name)
+        u.add_target_position(self.user.target_positions.all()[0].position_name)
+        u.add_preferred_language(self.user.preferred_languages.all()[0].lang_name)
+        role = 'EE' if self.user.preferred_role == 'ER' else 'ER'
+        u.set_preferred_role(role=role)
+        u.set_preferred_difficulty(self.user.preferred_difficulty)
+        avai = self.user.availability.all()[0]
+        u.add_availability(day = avai.day, start_time=str(avai.start_time)[:5], end_time= str(avai.end_time)[:5])
+        u.save_changes()
+        self.client.force_authenticate(user=self.user)
+        url = reverse('matching')
+        response = self.client.get(url, {'type': 'preference', 'user': self.user.username}, format='json')
+        self.assertEqual(response.status_code, 200)
+        self.assertNotEqual(response.json()['name'], self.user.username)
+
+    def test_history_matching(self):
+        self.assertEqual(len(self.user.history.all()), 0)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('matching')
+        response = self.client.get(url, {'type': 'history', 'user': self.user.username}, format='json')
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNone(response.json())
+        
+        self.user.update_history({"name": CustomUser.objects.get(pk = 2).username, "role": "ER"})
+        self.assertEqual(len(self.user.history.all()), 1)
+
+        url = reverse('matching')
+        response = self.client.get(url, {'type': 'history', 'user': self.user.username}, format='json')
+        self.assertEqual(response.status_code, 200)
+        response_name = response.json()['name']
+        self.assertNotEqual(response_name, self.user.username)
+        self.assertEqual(response_name, CustomUser.objects.get(pk = 2).username)
+

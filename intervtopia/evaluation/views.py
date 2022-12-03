@@ -1,4 +1,4 @@
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseNotFound
 from django.urls import reverse
 # legacy import above
 from django.views.decorators.csrf import csrf_exempt
@@ -41,6 +41,12 @@ class QuestionViewSet(viewsets.ModelViewSet):
 
 @csrf_exempt
 def evaluate(request):
+    '''
+    This is the handler function on clicking the evaluate button
+    This function handles a HTTP GET request with parameter: {"todo": "id"}
+    This function will create a new evaluation form object with predefined questions
+    This function then return the created evaluation form in JSON format
+    '''
     if request.method == 'GET':
         id = request.GET['todo']
         todo = ToDoItem.objects.get(pk = id)
@@ -51,12 +57,12 @@ def evaluate(request):
         }
         evalform = EvalForm.objects.create(
             name = todo.owner.username + '\'s evaluation to ' + todo.name + ' as a '+ role_lut[todo.role],
-            targer_user = todo.owner,
+            target_user = todo.owner,
             target_role = todo.role,
             comments = ""
         )
         todo.link = reverse('evalform-detail', args=[evalform.pk])
-        # evalform.targer_user = todo.owner
+        # evalform.target_user = todo.owner
         # evalform.save()
         if todo.role == 'ER':
             question_list = [
@@ -83,11 +89,18 @@ def evaluate(request):
             )
         serializer = EvalFormSerializer(evalform, context={'request': request})
         return JsonResponse(serializer.data, safe = False)
+    else:
+        return HttpResponseNotFound()
     
 @csrf_exempt
 def submit(request):
+    '''
+    TODO: need parameters: todo and history
+    '''
+    # data = JSONParser().parse(request)
     if request.method == 'POST':
         data = JSONParser().parse(request)
+        # print(data)
         form_id = data['form']
         question_data = data['questions']
         compressed_question_data = {}
@@ -103,8 +116,9 @@ def submit(request):
         form.comments = comments
         form.save()
         serializer = EvalFormSerializer(form, context={'request': request})
-    return JsonResponse(serializer.data, safe = False)
-
+        return JsonResponse(serializer.data, safe = False)
+    else:
+        return HttpResponseNotFound()
 # class ResponseViewSet(viewsets.ModelViewSet):
 #     """
 #     API endpoint that allows users to be viewed or edited.

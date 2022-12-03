@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-1vud44qsuxfju6q2cms52fd-c7ib5@ld6y9_41b$srt!%2q+qk'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = []
 
@@ -147,6 +147,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Redirect to the homepage at login
 LOGIN_REDIRECT_URL = '/'
 
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 CORS_ORIGIN_WHITELIST = [
      'http://localhost:3000'
 ]

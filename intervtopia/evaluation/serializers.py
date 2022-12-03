@@ -28,8 +28,8 @@ class QuestionSerializer(serializers.HyperlinkedModelSerializer):
 class EvalFormSerializer(serializers.HyperlinkedModelSerializer):
     # questions = serializers.StringRelatedField(many=True)
     # response = serializers.StringRelatedField()
-    targer_user = serializers.HyperlinkedRelatedField(many = False, view_name='customuser-detail', queryset = CustomUser.objects.all())
+    target_user = serializers.ReadOnlyField(source='target_user.username')
     questions = serializers.HyperlinkedRelatedField(many=True, view_name='question-detail', read_only = True)
     class Meta:
         model = EvalForm
-        fields = ['url', 'id', 'name', 'targer_user', 'target_role', 'time', 'questions', 'comments']
+        fields = ['url', 'id', 'name', 'target_user', 'target_role', 'time', 'questions', 'comments']

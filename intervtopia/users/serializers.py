@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser, ToDoItem, HistoryItem
+from .models import CustomUser, ToDoItem, HistoryItem, Language
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     target_companys = serializers.StringRelatedField(many=True)
@@ -58,7 +58,6 @@ class MatchingSerializer():
     available_time: "10:00 - 11:00 A.M.",
     evaluation_score: "4.7"
     '''
-
     def __init__(self, user: CustomUser) -> None:
         self.user = user
     
