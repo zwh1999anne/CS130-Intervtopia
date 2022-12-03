@@ -31,7 +31,7 @@ class EvalFormViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     @action(detail=True)
-    def evaluate(request):
+    def evaluate(self, request):
         '''
         This is the handler function on clicking the evaluate button
         This function handles a HTTP GET request with parameter: {"todo": "id"}
@@ -85,7 +85,7 @@ class EvalFormViewSet(viewsets.ModelViewSet):
 
         
     @action(detail=True, methods=['post'])
-    def submit(request):
+    def submit(self, request):
         '''
         TODO: need parameters: todo and history
         '''

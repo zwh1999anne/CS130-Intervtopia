@@ -16,7 +16,6 @@ from rest_framework.reverse import reverse
 from django.conf import settings
 from django.utils.timezone import make_aware
 from rest_framework.decorators import action
-
 # Create your views here.
 
 class InterviewViewSet(viewsets.ModelViewSet):
@@ -25,7 +24,7 @@ class InterviewViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     @action(detail=True, methods=['post'])
-    def confirm(request):
+    def confirm(self, request):
         '''
         Handler function invoked when user click the confirm button
         The function handles a HTTP POST request
@@ -93,7 +92,6 @@ class InterviewViewSet(viewsets.ModelViewSet):
             return JsonResponse(serializer.data, safe=False)
         else:
             return HttpResponseNotFound()
-            
         
     @action(detail=True)
     def complete(request):
