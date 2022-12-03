@@ -17,10 +17,12 @@ import {
   Tooltip,
 } from "react-bootstrap";
 
-import invitations from "backend_data/inivitation_list";
-import friends from "backend_data/friends_list";
-import default_preferences from "backend_data/default_preferences";
+import {getInvitations} from "backend_data/inivitation_list";
+import {getFriends} from "backend_data/friends_list";
+import {getPreferenceInfo, current_user_id} from "backend_data/default_preferences";
 
+const invitations = getInvitations(current_user_id);
+const friends = getFriends(current_user_id);
 let curr_friend_id = friends.length + 1;
 
 function SendMessageModal(props) {
@@ -70,7 +72,7 @@ function LauchInterviewModal(props) {
           Please confirm if you want to interview with {props.name} at the following time:
         </p>
         <p>
-        {default_preferences.available_day}, {default_preferences.available_time}
+        {props.day}, {props.time}
         </p>
       </Modal.Body>
       <Modal.Footer>
@@ -125,6 +127,10 @@ function Friends() {
 
   const [launchInterviewShow, setlaunchinterviewShow] = React.useState(false);
   const [interviewName, setinterviewName] = React.useState(" ");
+
+  const [preferences, setPreferences] = useState({});
+  getPreferenceInfo(current_user_id).then((value) => setPreferences(value));
+  var default_preferences = preferences;
 
 
   return (
@@ -200,7 +206,9 @@ function Friends() {
                         </Button>
                         <Button variant="primary" size="sm" onClick={() => {setlaunchinterviewShow(true); setinterviewName(element.name)}}>
                           Launch an Interview</Button>
-                        <LauchInterviewModal name={interviewName} show={launchInterviewShow} onHide={() => setlaunchinterviewShow(false)}> </LauchInterviewModal>
+                        <LauchInterviewModal name={interviewName} show={launchInterviewShow} 
+                        day = {default_preferences.available_day} time = {default_preferences.available_time}
+                        onHide={() => setlaunchinterviewShow(false)}> </LauchInterviewModal>
                         <SendMessageModal name = {MessageModalName} show={sendMessageModalShow} onHide={() => setsendMessageModalShow(false)}></SendMessageModal>
                         </div>
                         </td>

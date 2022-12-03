@@ -17,8 +17,9 @@ import {
   Tooltip,
 } from "react-bootstrap";
 
-import evaluation from "backend_data/evaluation_res";
-import interviews_list from "backend_data/interviews_list";
+import {getEvalRes} from "backend_data/evaluation_res";
+import {current_user_id} from "backend_data/default_preferences";
+import { getInterviews} from "backend_data/interviews_list";
 import { getEvalForm, evalConfirmed } from "backend_data/evaluation_form";
 
 function RatingImage(props){
@@ -120,6 +121,9 @@ function EvaluationModal(props){
 }
 
 function Evaluations() {
+  const evaluation = getEvalRes(current_user_id);
+  const interviews_list = getInterviews(current_user_id);
+
   const [interviewlist, setinterviewList] = useState(interviews_list);
 
   const [evalModalShow, setevalModalShow] = React.useState(false);
