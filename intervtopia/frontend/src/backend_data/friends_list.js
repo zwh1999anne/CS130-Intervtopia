@@ -1,8 +1,8 @@
-const friends = [
+const default_friends = [
     {
       id:"1",
       name: "Nick C",
-      message: "Hi Haofan, I have a recent update: I got the offer from my dream company! Thank you for helping me practice interview."
+      message: "Hi Alice, I have a recent update: I got the offer from my dream company! Thank you for helping me practice interview."
     },
     {
       id:"2",
@@ -12,13 +12,15 @@ const friends = [
     {
        id:"3",
        name: "Alicia W",
-       message: "Dear Haofan, how are things going?"
+       message: "Dear Alice, how are things going?"
     },
     {
       id:"4",
       name: "Wendy Y",
-      message: "Hi Haofan, It's nice to interview with you!"
+      message: "Hi Alice, It's nice to interview with you!"
     }
   ];
 
-  export default friends;
+export function getFriends(user_id){
+  return default_friends;
+}

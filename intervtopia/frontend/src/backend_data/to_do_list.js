@@ -1,4 +1,4 @@
-const toDos = [
+const default_toDos = [
     {
       id: "1",
       name: "Yadi C",
@@ -13,4 +13,6 @@ const toDos = [
     }
   ];
 
-  export default toDos;
+  export function getTodos(user_id){
+    return default_toDos;
+  }

@@ -1,4 +1,4 @@
-const interviews_list = [
+const default_interviews_list = [
     {
       id: "1",
       name: "Haofan L",
@@ -25,4 +25,6 @@ const interviews_list = [
     },
   ];
 
-  export default interviews_list;
+  export function getInterviews(user_id){
+    return default_interviews_list;
+  }

@@ -1,9 +1,8 @@
-import React, { useEffect, useState }  from "react";
 import axios from "axios";
 
 const default_preference = {
-    username: "Haofan",
-    email: "coding@g.ucla.edu",
+    username: "HesperZ",
+    email: "zwh990119@g.ucla.edu",
     school: "UCLA Computer Science",
     job_role: "Software Engineer",
     interview_role: "both",
@@ -16,10 +15,10 @@ const default_preference = {
     additional_available_time: "2:00 - 3:00 P.M."
 }
 
-export const current_user_id = 2;
+export const current_user_id = "2";
 
 export async function getPreferenceInfo(user_id){
-    let session_url = "http://127.0.0.1:8000/users/2/"
+    let session_url = "http://127.0.0.1:8000/users/" + current_user_id + "/"
 
     async function getUserPreference(){
       const { data } = await axios.get(session_url, {
@@ -45,27 +44,11 @@ export async function getPreferenceInfo(user_id){
 }
 
 function processPreferenceInfo(raw_data){
-    const processed_preferences = {
-        username: "",
-        email: "",
-        school: "",
-        job_role: "",
-        interview_role: "",
-        first_language: "",
-        second_language: "",
-        desired_difficulty: "",
-        available_day: "",
-        available_time: "",
-        additional_available_day: "",
-        additional_available_time: ""
-    }
+    const processed_preferences = default_preference;
     processed_preferences.username = raw_data.username;
     processed_preferences.email = raw_data.email;
     processed_preferences.school = raw_data.education;
-    if(raw_data.target_positions.length === 0){
-        processed_preferences.job_role = "";
-    }
-    else{
+    if(raw_data.target_positions.length !== 0){
         processed_preferences.job_role = raw_data.target_positions[0];
     }
 
@@ -84,11 +67,6 @@ function processPreferenceInfo(raw_data){
         processed_preferences.second_language = raw_data.preferred_languages[1];
     }else if(raw_data.preferred_languages.length >= 1){
         processed_preferences.first_language = raw_data.preferred_languages[0];
-        processed_preferences.second_language = "";
-    }
-    else{
-        processed_preferences.first_language = "";
-        processed_preferences.second_language = "";
     }
 
     if(raw_data.preferred_difficulty === "H"){
@@ -108,23 +86,16 @@ function processPreferenceInfo(raw_data){
         processed_preferences.available_time = time1[1];
         processed_preferences.additional_available_day = time2[0];
         processed_preferences.additional_available_time = time2[1];
-    }else if(raw_data.availability.length >= 1){
+    }
+    else if(raw_data.availability.length >= 1){
         let time1 = process_date_time(raw_data.availability[0]);
         processed_preferences.available_day = time1[0];
         processed_preferences.available_time = time1[1];
-        processed_preferences.additional_available_day = "";
-        processed_preferences.additional_available_time = "";
-    }
-    else{
-        processed_preferences.available_day = "";
-        processed_preferences.available_time = "";
-        processed_preferences.additional_available_day = "";
-        processed_preferences.additional_available_time = "";
     }
     return processed_preferences;
 }
 
-function process_date_time(input){
+export function process_date_time(input){
     const date_dict = {"Mon": "Monday", "Tue": "Tuesday", "Wed": "Wednesday", 
     "Thu": "Thursday", "Fri": "Friday", "Sat": "Saturday", "Sun": "Sunday"};
     const time_dict = {"9": "9:00 - 10:00 A.M.", "10": "10:00 - 11:00 A.M.",
