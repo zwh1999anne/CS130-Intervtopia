@@ -15,7 +15,7 @@ from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
 from rest_framework.reverse import reverse
 from django.conf import settings
 from django.utils.timezone import make_aware
-
+from rest_framework.decorators import action
 # Create your views here.
 
 class InterviewViewSet(viewsets.ModelViewSet):
@@ -23,75 +23,75 @@ class InterviewViewSet(viewsets.ModelViewSet):
     serializer_class = InterviewSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-@csrf_exempt
-def confirm(request):
-    '''
-    Handler function invoked when user click the confirm button
-    The function handles a HTTP POST request
-    With request body:
-    {
-        "username": "Alice"
-        "viewer": "Alice",
-        "viewee": "Bob",
-        "difficulty": "E",
-        "datetime": "11/26/22 17:24:00"
-    }
-    in JSON format
-    This Handler function will generate a new interview object and also update user's todo list
-    The function will eventually return a serialized todo object, which can be used by frontend to popup the todo list
-    '''
-    difficulty_lut = {
-        'E': 1,
-        'M': 2,
-        'H': 3
-    }
-    if request.method == 'POST':
-        # Create interview object based on the post data
-        data = JSONParser().parse(request)
-        viewer_id = CustomUser.objects.get(username = data['viewer']).pk
-        viewee_id = CustomUser.objects.get(username = data['viewee']).pk
-        diff = data['difficulty']
-        dt = data['datetime']
-        query = leetCodeQuestionQuery()
-        q = query.getRandomQuestion(difficulty_lut[diff])
-        prob = Problem.objects.get_or_create(name = q.getTitle(), url = q.getURL(), difficulty = q.getDifficulty())[0]
-        # print(prob)
-        mr = meetingRoom(viewer_id, viewee_id)
-        ide = IDE(viewer_id, viewee_id)
-        dt = datetime.strptime(dt, '%m/%d/%y %H:%M:%S')
-        aware_datetime = make_aware(dt)
-        interview = Interview(
-            viewER = CustomUser.objects.get(pk=viewer_id),
-            viewEE = CustomUser.objects.get(pk=viewee_id),
-            date_and_time = aware_datetime,
-            room_link = mr.getRoom(),
-            ide_link = ide.getRoom()
-        )
-        interview.save()
-        interview.problems.add(prob)
-        
-        # Update Todo List
-        todo_viewer = ToDoItem.objects.create(
-                owner = CustomUser.objects.get(username = data['viewer']),
-                name = data['viewee'],
-                role = 'ER',
-                type = 'I',
-                link = reverse('interview-detail', args=[interview.pk], request=request)             # link to the interview object
+    @action(detail=True, methods=['post'])
+    def confirm(self, request):
+        '''
+        Handler function invoked when user click the confirm button
+        The function handles a HTTP POST request
+        With request body:
+        {
+            "username": "Alice"
+            "viewer": "Alice",
+            "viewee": "Bob",
+            "difficulty": "E",
+            "datetime": "11/26/22 17:24:00"
+        }
+        in JSON format
+        This Handler function will generate a new interview object and also update user's todo list
+        The function will eventually return a serialized todo object, which can be used by frontend to popup the todo list
+        '''
+        difficulty_lut = {
+            'E': 1,
+            'M': 2,
+            'H': 3
+        }
+        if request.method == 'POST':
+            # Create interview object based on the post data
+            data = JSONParser().parse(request)
+            viewer_id = CustomUser.objects.get(username = data['viewer']).pk
+            viewee_id = CustomUser.objects.get(username = data['viewee']).pk
+            diff = data['difficulty']
+            dt = data['datetime']
+            query = leetCodeQuestionQuery()
+            q = query.getRandomQuestion(difficulty_lut[diff])
+            prob = Problem.objects.get_or_create(name = q.getTitle(), url = q.getURL(), difficulty = q.getDifficulty())[0]
+            # print(prob)
+            mr = meetingRoom(viewer_id, viewee_id)
+            ide = IDE(viewer_id, viewee_id)
+            dt = datetime.strptime(dt, '%m/%d/%y %H:%M:%S')
+            aware_datetime = make_aware(dt)
+            interview = Interview(
+                viewER = CustomUser.objects.get(pk=viewer_id),
+                viewEE = CustomUser.objects.get(pk=viewee_id),
+                date_and_time = aware_datetime,
+                room_link = mr.getRoom(),
+                ide_link = ide.getRoom()
             )
-        todo_viewee = ToDoItem.objects.create(
-                owner = CustomUser.objects.get(username = data['viewee']),
-                name = data['viewer'],
-                role = 'EE',
-                type = 'I',
-                link = reverse('interview-detail', args=[interview.pk], request=request)             # link to the interview object
-            )
-        if data['username'] == data['viewer']:
-            serializer = ToDoSerializer(todo_viewer)
-        elif data['username'] == data['viewee']:
-            serializer = ToDoSerializer(todo_viewee)
-        return JsonResponse(serializer.data, safe=False)
-    else:
-        return HttpResponseNotFound()
+            interview.save()
+            interview.problems.add(prob)
+            
+            # Update Todo List
+            todo_viewer = ToDoItem.objects.create(
+                    owner = CustomUser.objects.get(username = data['viewer']),
+                    name = data['viewee'],
+                    role = 'ER',
+                    type = 'I',
+                    link = reverse('interview-detail', args=[interview.pk], request=request)             # link to the interview object
+                )
+            todo_viewee = ToDoItem.objects.create(
+                    owner = CustomUser.objects.get(username = data['viewee']),
+                    name = data['viewer'],
+                    role = 'EE',
+                    type = 'I',
+                    link = reverse('interview-detail', args=[interview.pk], request=request)             # link to the interview object
+                )
+            if data['username'] == data['viewer']:
+                serializer = ToDoSerializer(todo_viewer)
+            elif data['username'] == data['viewee']:
+                serializer = ToDoSerializer(todo_viewee)
+            return JsonResponse(serializer.data, safe=False)
+        else:
+            return HttpResponseNotFound()
         
     
 @csrf_exempt
